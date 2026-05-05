@@ -1,30 +1,26 @@
 "use client";
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
-import HeroScrollSequence from '@/components/shop/HeroScrollSequence';
+import Hero from '@/components/shop/Hero';
 import { ProductGrid } from '@/components/shop/ProductGrid';
 import ProductModal from '@/components/shop/ProductModal';
 import CartDrawer from '@/components/cart/CartDrawer';
+import WishlistDrawer from '@/components/cart/WishlistDrawer';
+import Footer from '@/components/layout/Footer';
 import { Palette, Feather, ShieldCheck, ArrowUpRight, Flower2 } from 'lucide-react';
 
 export default function Home() {
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleQuickView = (product) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
-  };
 
   return (
     <main className="relative bg-background min-h-screen">
       <Navbar />
       
       {/* 2026 Interactive Hero Sequence */}
-      <HeroScrollSequence />
+      <Hero />
       
       <div className="bg-background relative z-20">
-        <ProductGrid onQuickView={handleQuickView} />
+        <ProductGrid />
       </div>
 
       <section id="atelier" className="py-40 border-t border-border bg-secondary/30 relative z-20">
@@ -85,34 +81,10 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="py-32 border-t border-border bg-background relative z-20">
-        <div className="container mx-auto px-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-16">
-            <div className="space-y-8">
-               <div className="flex items-center gap-4">
-                  <img src="/BloomAtelier-Logo.jpeg" alt="Logo" className="h-10 w-auto grayscale" />
-                  <h2 className="text-xl font-extrabold tracking-tighter uppercase">Bloom Atelier</h2>
-               </div>
-               <div className="flex flex-wrap gap-x-12 gap-y-4">
-                  {['Instagram', 'Pinterest', 'Atelier Journal', 'Private Commission'].map(item => (
-                    <a key={item} href="#" className="text-[10px] uppercase font-bold tracking-[0.2em] text-muted hover:text-accent transition-all">{item}</a>
-                  ))}
-               </div>
-            </div>
-            <div className="space-y-4 text-right">
-               <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-muted/50">© 2026 Studio Reserve</p>
-               <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-muted/50">Designed for Permanence</p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
-      <ProductModal 
-        product={selectedProduct} 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
       <CartDrawer />
+      <WishlistDrawer />
     </main>
   );
 }

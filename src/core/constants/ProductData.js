@@ -1,65 +1,91 @@
 export const products = [
   {
     id: 1,
-    name: "Classic Lavender Bloom",
-    description: "Elegant handcrafted pipe cleaner lavender bouquet. Perfect for everlasting memories.",
-    price: 124.00,
-    image: "/luxury_pipe_cleaner_bouquet_1777975715581.png",
-    category: "Essential",
+    name: "Architectural Bloom No. 01",
+    price: 185,
+    category: "Studio Series",
+    image: "/bloom_collection_1_1777980300798.png",
+    description: "A minimalist masterpiece featuring structural pipe-cleaner petals and a hand-crafted ceramic base. Designed for permanent display in modern sanctuaries.",
     variants: {
       colors: [
-        { name: "Deep Purple", hex: "#4b0082" },
-        { name: "Soft Lilac", hex: "#c8a2c8" },
-        { name: "Pure White", hex: "#ffffff" }
+        { name: "Forest Tint", hex: "#051f20" },
+        { name: "Raw Parchment", hex: "#D9D4C8" },
+        { name: "Dusty Blush", hex: "#F4C2C2" }
       ],
-      sizes: ["Small", "Standard", "Deluxe"]
+      sizes: ["Standard", "Large", "Studio Reserve"]
     }
   },
   {
     id: 2,
-    name: "Sunset Tulip Set",
-    description: "Vibrant tulips that never wilt. A touch of spring for your home year-round.",
-    price: 132.50,
-    image: "/luxury_pipe_cleaner_bouquet_1777975715581.png",
-    category: "Seasonal",
+    name: "Velvet Sculpture Solo",
+    price: 120,
+    category: "Monochrome Collection",
+    image: "/bloom_collection_2_1777980314662.png",
+    description: "A single, oversized bloom crafted from premium velvet-wrapped structural wire. A tactile statement piece that challenges the boundary between nature and art.",
     variants: {
       colors: [
-        { name: "Sunset Orange", hex: "#ff4500" },
-        { name: "Golden Yellow", hex: "#ffd700" },
-        { name: "Flamingo Pink", hex: "#fc8eac" }
+        { name: "Midnight Green", hex: "#051f20" },
+        { name: "Bone", hex: "#E5E1D8" }
       ],
-      sizes: ["Standard", "Deluxe"]
+      sizes: ["Solo Edition"]
     }
   },
   {
     id: 3,
-    name: "Midnight Rose Bouquet",
-    description: "Sophisticated dark roses for a touch of gothic elegance. Hand-twisted perfection.",
-    price: 245.00,
-    image: "/luxury_pipe_cleaner_bouquet_1777975715581.png",
-    category: "Limited Edition",
+    name: "Geometric Cluster Suite",
+    price: 340,
+    category: "Avant-Garde",
+    image: "/bloom_collection_3_1777980333675.png",
+    description: "A complex arrangement of interlocking geometric floral forms. Each piece is individually wired to allow for custom sculptural manipulation.",
     variants: {
       colors: [
-        { name: "Midnight Black", hex: "#121212" },
-        { name: "Velvet Red", hex: "#8b0000" },
-        { name: "Navy Blue", hex: "#000080" }
+        { name: "Multi-Tonal Forest", hex: "#0a2a2b" },
+        { name: "Parchment Mix", hex: "#D9D4C8" }
       ],
-      sizes: ["Standard", "Deluxe", "Grand"]
+      sizes: ["Gallery Scale"]
     }
   },
   {
     id: 4,
-    name: "Sunflower Sunshine",
-    description: "Bright and cheerful sunflowers made with premium fuzzy pipe cleaners.",
-    price: 128.00,
-    image: "/luxury_pipe_cleaner_bouquet_1777975715581.png",
-    category: "Studio Select",
+    name: "Minimalist Stem IV",
+    price: 95,
+    category: "Studio Series",
+    image: "/bloom_collection_1_1777980300798.png", 
+    description: "The essence of a flower reduced to its structural core. An exercise in restraint and permanent elegance.",
     variants: {
       colors: [
-        { name: "Classic Yellow", hex: "#ffcc00" },
-        { name: "Autumn Brown", hex: "#5d4037" }
+        { name: "Signature Green", hex: "#051f20" }
       ],
-      sizes: ["Small", "Standard"]
+      sizes: ["Small", "Medium"]
+    }
+  },
+  {
+    id: 5,
+    name: "Velvet Bloom Ensemble",
+    price: 260,
+    category: "Monochrome Collection",
+    image: "/bloom_collection_2_1777980314662.png",
+    description: "A collection of three velvet-wrapped blooms, harmoniously balanced for mantel or console display.",
+    variants: {
+      colors: [
+        { name: "Forest", hex: "#051f20" },
+        { name: "Rose", hex: "#F4C2C2" }
+      ],
+      sizes: ["Standard Trio"]
+    }
+  },
+  {
+    id: 6,
+    name: "The Atelier Reserve",
+    price: 520,
+    category: "Gallery Edition",
+    image: "/bloom_collection_3_1777980333675.png",
+    description: "Our most complex arrangement to date. A symphony of textures and tones, reserved for the most discerning collectors.",
+    variants: {
+      colors: [
+        { name: "Studio Signature", hex: "#051f20" }
+      ],
+      sizes: ["Curated Scale"]
     }
   }
 ];
