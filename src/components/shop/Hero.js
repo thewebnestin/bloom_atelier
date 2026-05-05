@@ -35,8 +35,8 @@ export default function Hero() {
           {/* Main Headline */}
           <div className="space-y-4 mb-16">
             <h1 className="text-[12vw] lg:text-[10vw] font-extrabold tracking-tighter uppercase leading-[0.8] text-foreground">
-              Eternal <br /> 
-              <span className="italic opacity-20">Botanics.</span>
+              Bloom <br /> 
+              <span className="italic opacity-30">Atelier.</span>
             </h1>
           </div>
 
@@ -44,7 +44,7 @@ export default function Hero() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-end">
             <div className="md:col-span-6">
               <p className="text-xl md:text-2xl text-muted font-medium leading-relaxed">
-                Elevating the ordinary through structural artistry. Our permanent floral sculptures bring a new dimension of permanence to your space.
+                Handcrafted art that transcends time. This is Bloom Atelier—where every petal is sculpted by hand to create eternal e-commerce masterpieces.
               </p>
             </div>
             

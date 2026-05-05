@@ -6,7 +6,7 @@ import gsap from 'gsap';
 import Link from 'next/link';
 
 const NAV_LINKS = [
-  { label: 'Collections', href: '/collections' },
+  { label: 'Collections', href: '#catalog' },
   { label: 'Archive', href: '#atelier' },
   { label: 'Studio', href: '#studio' },
   { label: 'Custom', href: '#custom' },
