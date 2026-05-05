@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+:root {
+  /* Warm Parchment Studio Palette */
+  --bg-main: #D9D4C8;
+  --bg-secondary: #CEC9BC;
+  --text-main: #051f20;
+  --text-muted: #3a4f50;
+  
+  --accent: #F4C2C2; /* Baby Pink */
+  --accent-foreground: #051f20;
+  
+  --border: rgba(5, 31, 32, 0.15);
+  --border-muted: rgba(5, 31, 32, 0.05);
+  
+  --font-main: 'Plus Jakarta Sans', sans-serif;
+  
+  --radius-card: 0.75rem; 
+  --radius-btn: 100px;
+}
+
+[data-theme='dark'] {
+  --bg-main: #051f20;
+  --bg-secondary: #0a2a2b;
+  --text-main: #D9D4C8;
+  --text-muted: #a7a297;
+  --border: rgba(217, 212, 200, 0.15);
+  --border-muted: rgba(217, 212, 200, 0.05);
+}
+
+@theme {
+  --color-primary: var(--accent);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-background: var(--bg-main);
+  --color-foreground: var(--text-main);
+  --color-secondary: var(--bg-secondary);
+  --color-muted: var(--text-muted);
+  --color-border: var(--border);
+  --font-sans: var(--font-main);
+}
+
+@layer base {
+  html, body {
+    @apply bg-background text-foreground font-sans antialiased selection:bg-accent/30;
+    margin: 0;
+    padding: 0;
+  }
+
+  * {
+    box-shadow: none !important;
+    border-color: var(--border);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-foreground;
+  }
+
+  p {
+    @apply text-muted;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-background/80 backdrop-blur-xl border border-border;
+  }
+  
+  .btn-modern {
+    @apply px-10 py-4 rounded-full bg-accent text-accent-foreground font-bold text-[10px] tracking-widest uppercase
+    transition-all duration-500 hover:opacity-90 active:scale-95;
+  }
+
+  .bento-card {
+    @apply p-10 rounded-[var(--radius-card)] bg-secondary border border-border transition-all duration-500
+    hover:bg-background;
+  }
+  
+  .badge {
+    @apply px-3 py-1 rounded-full bg-accent/20 text-accent text-[9px] font-bold uppercase tracking-widest;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
