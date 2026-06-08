@@ -5,15 +5,31 @@ import { X, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CartDrawer() {
-  const { cart, isCartOpen, setIsCartOpen, removeFromCart } = useShop();
+  const { cart, isCartOpen, setIsCartOpen, removeFromCart, createOrder, user } = useShop();
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
-  const handleCheckout = () => {
-    const message = `Hello Bloom Atelier,\n\nI would like to place an order for the following flowers:\n\n` +
-      cart.map(item => `- ${item.name} (${item.variantDetails.color} / ${item.variantDetails.size}) x${item.quantity} - ₹${item.price * item.quantity}`).join('\n') +
-      `\n\nSubtotal: ₹${subtotal}\n\nThank you!`;
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/918714793136?text=${encodedMessage}`, '_blank');
+  const handleCheckout = async () => {
+    try {
+      const customerName = user?.displayName || "Guest Customer";
+      const customerEmail = user?.email || "guest@example.com";
+      
+      // Build message string BEFORE clearing the cart inside createOrder
+      const message = `Hello Bloom Atelier,\n\nI would like to place an order for the following flowers:\n\n` +
+        cart.map(item => `- ${item.name} (${item.variantDetails.color} / ${item.variantDetails.size}) x${item.quantity} - ₹${item.price * item.quantity}`).join('\n') +
+        `\n\nSubtotal: ₹${subtotal}\n\nThank you!`;
+      const encodedMessage = encodeURIComponent(message);
+
+      // Record in Firestore (this will also empty the local cart state)
+      await createOrder(customerName, customerEmail, subtotal);
+      
+      // Close the cart drawer
+      setIsCartOpen(false);
+
+      // Open WhatsApp in a new tab
+      window.open(`https://wa.me/918714793136?text=${encodedMessage}`, '_blank');
+    } catch (err) {
+      console.error("Failed to create order on checkout:", err);
+    }
   };
 
   if (!isCartOpen) return null;

@@ -15,7 +15,7 @@ const NAV_LINKS = [
 export default function Navbar() {
   const { 
     theme, toggleTheme, cart, wishlist, 
-    toggleCart, toggleWishlist, closeAllDrawers 
+    toggleCart, toggleWishlist, closeAllDrawers, isAdmin 
   } = useShop();
   
   const navRef = useRef(null);
@@ -148,6 +148,15 @@ export default function Navbar() {
                 </Component>
               );
             })}
+            {isAdmin && (
+              <Link 
+                href="/admin" 
+                onClick={closeAllDrawers}
+                className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent hover:text-accent/80 transition-colors"
+              >
+                Admin Panel
+              </Link>
+            )}
           </div>
 
           {/* Right Controls */}
@@ -225,6 +234,23 @@ export default function Navbar() {
                 </Component>
               );
             })}
+
+            {isAdmin && (
+              <Link 
+                ref={el => mobileLinksRef.current[NAV_LINKS.length + 4] = el}
+                href="/admin"
+                onClick={handleLinkClick}
+                className="group flex items-center justify-between py-6 border-b border-border"
+                style={{ opacity: 0 }}
+              >
+                <span className="text-[11vw] sm:text-6xl font-extrabold uppercase tracking-tighter text-accent group-hover:text-accent/80 transition-colors duration-300">
+                  Admin Panel
+                </span>
+                <span className="text-[10px] uppercase tracking-widest text-muted font-bold opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                  Manager →
+                </span>
+              </Link>
+            )}
 
             {/* Added Wishlist Tab in Menu */}
             <button 

@@ -1,10 +1,13 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Check, Heart } from "lucide-react";
+import { db, auth } from "../firebase/firebase";
+import { collection, getDocs, addDoc, doc, getDoc, setDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 
 const ShopContext = createContext();
 
-// Custom Toast Component
+// Custom Toast Component (Styled as a luxury glassmorphic capsule)
 function Toast({ message, type, onClose }) {
   useEffect(() => {
     const timer = setTimeout(onClose, 2800);
@@ -38,12 +41,88 @@ function Toast({ message, type, onClose }) {
 }
 
 export function ShopProvider({ children }) {
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [theme, setTheme] = useState("light");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Load products from Firestore, and seed database if empty
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoadingProducts(true);
+        const querySnapshot = await getDocs(collection(db, "products"));
+        let productsList = [];
+        querySnapshot.forEach((doc) => {
+          productsList.push({ id: doc.id, ...doc.data() });
+        });
+
+        if (productsList.length === 0) {
+          console.log("Firestore products collection is empty. Seeding defaults...");
+          const { products: defaultProducts } = await import("@/core/constants/ProductData");
+          for (const item of defaultProducts) {
+            const { id, ...dataToSeed } = item;
+            const docRef = await addDoc(collection(db, "products"), dataToSeed);
+            productsList.push({ id: docRef.id, ...dataToSeed });
+          }
+        }
+        setProducts(productsList);
+      } catch (err) {
+        console.error("Error loading products from Firestore:", err);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Listen to auth changes and sync user cart
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        
+        // Define admin checks (explicit list or role field in Firestore)
+        const email = firebaseUser.email || "";
+        const isAdminEmail = email === "admin@bloomatelier.com" || email.endsWith("@bloomatelier.com");
+        
+        let isAdminDb = false;
+        try {
+          const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+          if (userDoc.exists() && userDoc.data().role === "admin") {
+            isAdminDb = true;
+          }
+        } catch (e) {
+          console.error("Error checking user role:", e);
+        }
+        
+        setIsAdmin(isAdminEmail || isAdminDb);
+
+        // Fetch user's cart from Firestore
+        try {
+          const cartDoc = await getDoc(doc(db, "carts", firebaseUser.uid));
+          if (cartDoc.exists()) {
+            setCart(cartDoc.data().items || []);
+          }
+        } catch (e) {
+          console.error("Error loading cart:", e);
+        }
+      } else {
+        setUser(null);
+        setIsAdmin(false);
+        setCart([]); // Clear local cart on logout
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -56,21 +135,17 @@ export function ShopProvider({ children }) {
     setToast({ message, type, id: Date.now() });
   };
 
-  // Toggle cart - close wishlist if open
   const toggleCart = () => {
     setIsWishlistOpen(false);
     setIsCartOpen((prev) => !prev);
   };
 
-  // Toggle wishlist - close cart if open
   const toggleWishlist = (product) => {
-    // If called with no product, toggle the drawer
     if (!product) {
       setIsCartOpen(false);
       setIsWishlistOpen((prev) => !prev);
       return;
     }
-    // Otherwise, add/remove from wishlist
     setWishlist((prev) => {
       const exists = prev.find((item) => item.id === product.id);
       if (exists) {
@@ -82,7 +157,6 @@ export function ShopProvider({ children }) {
     });
   };
 
-  // Close all drawers
   const closeAllDrawers = () => {
     setIsCartOpen(false);
     setIsWishlistOpen(false);
@@ -95,30 +169,81 @@ export function ShopProvider({ children }) {
           item.id === product.id &&
           item.variant === variant.color + variant.size,
       );
+      let updatedCart = [];
       if (existing) {
-        return prev.map((item) =>
+        updatedCart = prev.map((item) =>
           item.id === product.id &&
           item.variant === variant.color + variant.size
             ? { ...item, quantity: item.quantity + qty }
             : item,
         );
+      } else {
+        updatedCart = [
+          ...prev,
+          {
+            ...product,
+            variant: variant.color + variant.size,
+            variantDetails: variant,
+            quantity: qty,
+          },
+        ];
       }
-      return [
-        ...prev,
-        {
-          ...product,
-          variant: variant.color + variant.size,
-          variantDetails: variant,
-          quantity: qty,
-        },
-      ];
+
+      // Sync with Firestore if logged in
+      if (auth.currentUser) {
+        setDoc(doc(db, "carts", auth.currentUser.uid), { items: updatedCart })
+          .catch(err => console.error("Error syncing cart to Firestore:", err));
+      }
+      return updatedCart;
     });
+
     setIsWishlistOpen(false);
     showToast(`Added to Cart: ${product.name}`, "success");
   };
 
   const removeFromCart = (itemId) => {
-    setCart((prev) => prev.filter((item) => item.id + item.variant !== itemId));
+    setCart((prev) => {
+      const updatedCart = prev.filter((item) => item.id + item.variant !== itemId);
+      
+      // Sync with Firestore if logged in
+      if (auth.currentUser) {
+        setDoc(doc(db, "carts", auth.currentUser.uid), { items: updatedCart })
+          .catch(err => console.error("Error syncing cart to Firestore:", err));
+      }
+      return updatedCart;
+    });
+  };
+
+  const clearCart = () => {
+    setCart([]);
+    if (auth.currentUser) {
+      setDoc(doc(db, "carts", auth.currentUser.uid), { items: [] })
+        .catch(err => console.error("Error clearing cart:", err));
+    }
+  };
+
+  const createOrder = async (customerName, customerEmail, subtotal) => {
+    try {
+      const orderData = {
+        userId: auth.currentUser?.uid || "guest",
+        customerName: customerName || auth.currentUser?.displayName || "Guest Customer",
+        customerEmail: customerEmail || auth.currentUser?.email || "guest@example.com",
+        items: cart,
+        subtotal: subtotal,
+        status: "Pending",
+        createdAt: new Date().toISOString(),
+      };
+      
+      const docRef = await addDoc(collection(db, "orders"), orderData);
+      
+      // Clear local and remote cart
+      clearCart();
+      
+      return docRef.id;
+    } catch (e) {
+      console.error("Error creating order in Firestore:", e);
+      throw e;
+    }
   };
 
   const removeFromWishlist = (productId) => {
@@ -128,14 +253,20 @@ export function ShopProvider({ children }) {
   return (
     <ShopContext.Provider
       value={{
+        products,
+        loadingProducts,
         cart,
         wishlist,
         theme,
         isCartOpen,
         isWishlistOpen,
+        user,
+        isAdmin,
         toggleTheme,
         addToCart,
         removeFromCart,
+        clearCart,
+        createOrder,
         toggleWishlist,
         removeFromWishlist,
         setIsCartOpen,
@@ -143,6 +274,7 @@ export function ShopProvider({ children }) {
         toggleCart,
         closeAllDrawers,
         showToast,
+        setProducts // Expose setProducts to allow immediate updates from admin CRUD operations
       }}
     >
       {children}

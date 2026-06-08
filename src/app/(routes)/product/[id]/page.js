@@ -7,7 +7,6 @@ import CartDrawer from '@/components/cart/CartDrawer';
 import WishlistDrawer from '@/components/cart/WishlistDrawer';
 import Footer from '@/components/layout/Footer';
 import ProductCard from '@/components/shop/ProductCard';
-import { products } from '@/core/constants/ProductData';
 import { useShop } from '@/core/shop/ShopContext';
 import { ArrowLeft, Plus, Minus, ShieldCheck, Heart, Truck, RotateCcw } from 'lucide-react';
 import gsap from 'gsap';
@@ -20,8 +19,8 @@ if (typeof window !== 'undefined') {
 export default function ProductDetails() {
   const { id } = useParams();
   const router = useRouter();
-  const { addToCart, setIsCartOpen, toggleWishlist, wishlist } = useShop();
-  const product = products.find(p => p.id === parseInt(id));
+  const { products, loadingProducts, addToCart, setIsCartOpen, toggleWishlist, wishlist } = useShop();
+  const product = products.find(p => String(p.id) === String(id));
   
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -31,7 +30,7 @@ export default function ProductDetails() {
   const containerRef = useRef(null);
 
   const relatedProducts = products
-    .filter(p => p.category === product?.category && p.id !== product?.id)
+    .filter(p => p.category === product?.category && String(p.id) !== String(product?.id))
     .slice(0, 4);
 
   useEffect(() => {
@@ -51,7 +50,15 @@ export default function ProductDetails() {
     };
   }, [product]);
 
-  if (!product) return <div className="h-screen flex items-center justify-center">Product not found</div>;
+  if (loadingProducts) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background text-foreground text-xs uppercase tracking-[0.3em] font-extrabold animate-pulse">
+        Loading Arrangement...
+      </div>
+    );
+  }
+
+  if (!product) return <div className="h-screen flex items-center justify-center text-foreground font-bold">Product not found</div>;
   if (!selectedColor || !selectedSize) return <div className="h-screen flex items-center justify-center bg-background" />;
 
   const isWishlisted = wishlist.some(item => item.id === product.id);
