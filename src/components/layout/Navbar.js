@@ -2,9 +2,11 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useShop } from '@/core/shop/ShopContext';
 import AuthDrawer from '../cart/AuthDrawer';
+import ProfileDrawer from '../profile/ProfileDrawer';
 import { ShoppingBag, Moon, Sun, Menu, X, Heart, User, Phone, MessageCircle } from 'lucide-react';
 import gsap from 'gsap';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 
 const NAV_LINKS = [
   { label: 'Shop', href: '/shop' },
@@ -16,21 +18,33 @@ const NAV_LINKS = [
 export default function Navbar() {
   const { 
     theme, toggleTheme, cart, wishlist, 
-    toggleCart, toggleWishlist, closeAllDrawers, isAdmin,
-    user, setIsAuthOpen
+    toggleCart, toggleWishlist, closeAllDrawers,
+    user, setIsAuthOpen, isProfileOpen, setIsProfileOpen, showToast
   } = useShop();
 
-  const handleProfileClick = async () => {
+  const handleProfileClick = () => {
     if (user) {
-      if (confirm(`Logged in as ${user.displayName || user.email}. Do you want to sign out?`)) {
-        const { logout } = await import('@/services/authService');
-        await logout();
-      }
+      setIsProfileOpen(true);
     } else {
       setIsAuthOpen(true);
     }
   };
-  
+
+  const getInitials = (userObj) => {
+    if (!userObj) return "";
+    if (userObj.displayName) {
+      const parts = userObj.displayName.trim().split(/\s+/);
+      if (parts.length > 1) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+      return parts[0].slice(0, 2).toUpperCase();
+    }
+    if (userObj.email) {
+      const prefix = userObj.email.split('@')[0];
+      return prefix.slice(0, 2).toUpperCase();
+    }
+    return "US";
+  };
   const navRef = useRef(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -161,15 +175,6 @@ export default function Navbar() {
                 </Component>
               );
             })}
-            {isAdmin && (
-              <Link 
-                href="/admin" 
-                onClick={closeAllDrawers}
-                className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent hover:text-accent/80 transition-colors"
-              >
-                Admin Panel
-              </Link>
-            )}
           </div>
 
           {/* Right Controls */}
@@ -203,10 +208,16 @@ export default function Navbar() {
             {/* Profile */}
             <button 
               onClick={handleProfileClick}
-              className={`p-3 transition-all duration-300 ${user ? 'text-accent' : 'text-foreground/40 hover:text-accent'}`}
+              className={`transition-all duration-300 ${user ? 'p-1' : 'p-3 text-foreground/40 hover:text-accent'}`}
               title={user ? `Signed in as ${user.displayName || user.email}` : "Sign In"}
             >
-              <User size={20} />
+              {user ? (
+                <div className="w-8 h-8 rounded-full border border-border bg-accent text-accent-foreground text-[10px] font-black uppercase tracking-wider flex items-center justify-center hover:opacity-85 transition-opacity shadow-sm">
+                  {getInitials(user)}
+                </div>
+              ) : (
+                <User size={20} />
+              )}
             </button>
 
             {/* Mobile Hamburger */}
@@ -250,21 +261,46 @@ export default function Navbar() {
               );
             })}
 
-            {isAdmin && (
-              <Link 
-                ref={el => mobileLinksRef.current[NAV_LINKS.length + 4] = el}
-                href="/admin"
-                onClick={handleLinkClick}
-                className="group flex items-center justify-between py-6 border-b border-border"
-                style={{ opacity: 0 }}
-              >
-                <span className="text-[11vw] sm:text-6xl font-extrabold uppercase tracking-tighter text-accent group-hover:text-accent/80 transition-colors duration-300">
-                  Admin Panel
-                </span>
-                <span className="text-[10px] uppercase tracking-widest text-muted font-bold opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                  Manager →
-                </span>
-              </Link>
+
+
+            {user && (
+              <>
+                <button 
+                  ref={el => mobileLinksRef.current[NAV_LINKS.length + 5] = el}
+                  onClick={() => {
+                    closeMobile(() => setIsProfileOpen(true));
+                  }}
+                  className="group flex items-center justify-between py-6 border-b border-border text-left w-full"
+                  style={{ opacity: 0 }}
+                >
+                  <span className="text-[11vw] sm:text-6xl font-extrabold uppercase tracking-tighter text-foreground group-hover:text-accent transition-colors duration-300">
+                    My Account
+                  </span>
+                  <span className="text-[10px] uppercase tracking-widest text-muted font-bold opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                    Settings →
+                  </span>
+                </button>
+
+                <button 
+                  ref={el => mobileLinksRef.current[NAV_LINKS.length + 6] = el}
+                  onClick={async () => {
+                    closeMobile(async () => {
+                      const { logout } = await import('@/services/authService');
+                      await logout();
+                      showToast("Logged out successfully.", "info");
+                    });
+                  }}
+                  className="group flex items-center justify-between py-6 border-b border-border text-left w-full"
+                  style={{ opacity: 0 }}
+                >
+                  <span className="text-[11vw] sm:text-6xl font-extrabold uppercase tracking-tighter text-red-500 hover:text-red-600 transition-colors duration-300">
+                    Logout
+                  </span>
+                  <span className="text-[10px] uppercase tracking-widest text-muted font-bold opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                    Sign Out →
+                  </span>
+                </button>
+              </>
             )}
 
             {/* Added Wishlist Tab in Menu */}
@@ -376,6 +412,7 @@ export default function Navbar() {
         </div>
       )}
       <AuthDrawer />
+      <ProfileDrawer />
     </>
   );
 }

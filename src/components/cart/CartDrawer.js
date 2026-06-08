@@ -3,12 +3,14 @@ import React from 'react';
 import { useShop } from '@/core/shop/ShopContext';
 import { X, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function CartDrawer() {
-  const { cart, isCartOpen, setIsCartOpen, removeFromCart, createOrder, user, setIsAuthOpen, showToast } = useShop();
+  const router = useRouter();
+  const { cart, isCartOpen, setIsCartOpen, removeFromCart, user, setIsAuthOpen, showToast } = useShop();
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     // Force Authentication: Guests cannot place orders
     if (!user) {
       setIsCartOpen(false); // Close Cart drawer
@@ -17,27 +19,8 @@ export default function CartDrawer() {
       return;
     }
 
-    try {
-      const customerName = user.displayName || "Customer";
-      const customerEmail = user.email || "";
-      
-      // Build message string BEFORE clearing the cart inside createOrder
-      const message = `Hello Bloom Atelier,\n\nI would like to place an order for the following flowers:\n\n` +
-        cart.map(item => `- ${item.name} (${item.variantDetails.color} / ${item.variantDetails.size}) x${item.quantity} - ₹${item.price * item.quantity}`).join('\n') +
-        `\n\nSubtotal: ₹${subtotal}\n\nThank you!`;
-      const encodedMessage = encodeURIComponent(message);
-
-      // Record in Firestore (this will also empty the local cart state)
-      await createOrder(customerName, customerEmail, subtotal);
-      
-      // Close the cart drawer
-      setIsCartOpen(false);
-
-      // Open WhatsApp in a new tab
-      window.open(`https://wa.me/918714793136?text=${encodedMessage}`, '_blank');
-    } catch (err) {
-      console.error("Failed to create order on checkout:", err);
-    }
+    setIsCartOpen(false); // Close Cart drawer
+    router.push('/checkout');
   };
 
   if (!isCartOpen) return null;
@@ -117,7 +100,7 @@ export default function CartDrawer() {
               onClick={handleCheckout}
               className="w-full py-5 rounded-none bg-foreground text-background font-bold text-sm tracking-widest uppercase transition-all duration-500 hover:opacity-90 flex items-center justify-center gap-3"
             >
-              Order via WhatsApp <ArrowRight size={18} />
+              Proceed to Checkout <ArrowRight size={18} />
             </button>
           </div>
         )}

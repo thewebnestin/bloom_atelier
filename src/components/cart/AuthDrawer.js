@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useShop } from '@/core/shop/ShopContext';
-import { X, User, Mail, Lock, LogIn, UserPlus } from 'lucide-react';
+import { X, User, Mail, Lock, LogIn, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { loginWithEmail, signUpWithEmail, loginWithGoogle } from '@/services/authService';
 
 export default function AuthDrawer() {
@@ -11,6 +11,7 @@ export default function AuthDrawer() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   if (!isAuthOpen) return null;
 
@@ -36,8 +37,9 @@ export default function AuthDrawer() {
       setName('');
       setEmail('');
       setPassword('');
+      setShowPassword(false);
     } catch (err) {
-      console.error("Auth error:", err);
+      console.warn("Auth warning:", err.message || err);
       const msg = err.message || "";
       if (msg.includes("auth/email-already-in-use")) {
         showToast("This email is already registered.", "error");
@@ -60,7 +62,7 @@ export default function AuthDrawer() {
       showToast("Logged in with Google!", "success");
       setIsAuthOpen(false);
     } catch (err) {
-      console.error(err);
+      console.warn("Google sign in warning:", err.message || err);
       showToast("Google sign in failed.", "error");
     } finally {
       setLoading(false);
@@ -143,13 +145,20 @@ export default function AuthDrawer() {
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/35" size={14} />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-5 py-3.5 bg-secondary/25 border border-border rounded-full text-xs font-semibold focus:outline-none focus:border-accent transition-all duration-300"
+                  className="w-full pl-11 pr-11 py-3.5 bg-secondary/25 border border-border rounded-full text-xs font-semibold focus:outline-none focus:border-accent transition-all duration-300"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/35 hover:text-foreground transition-colors focus:outline-none"
+                >
+                  {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
               </div>
             </div>
 

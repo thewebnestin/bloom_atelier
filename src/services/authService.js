@@ -1,4 +1,4 @@
-import { auth, googleProvider } from "@/core/firebase/firebase";
+import { auth, googleProvider, db } from "@/core/firebase/firebase";
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -8,6 +8,9 @@ import {
   signInWithPhoneNumber,
   RecaptchaVerifier
 } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+
+const ADMIN_EMAILS = ["admin@bloooms.atelier.com", "admin@bloomatelier.com", "admin@gmail.com", "rinshadcontacts@gmail.com"];
 
 /**
  * Sign up a new user with email, password, and name
@@ -20,6 +23,15 @@ export async function signUpWithEmail(email, password, name) {
     // Update user profile display name
     await updateProfile(user, { displayName: name });
     
+    // Create Firestore document with role
+    const isUserAdmin = ADMIN_EMAILS.includes(email);
+    await setDoc(doc(db, "users", user.uid), {
+      displayName: name || "Studio User",
+      email: email,
+      role: isUserAdmin ? "admin" : "user",
+      createdAt: new Date().toISOString()
+    });
+
     // Save user object to localStorage for sync with UI navbar
     const userData = {
       uid: user.uid,

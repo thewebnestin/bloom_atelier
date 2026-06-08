@@ -1,26 +1,24 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import AdminNavbar from "@/components/layout/AdminNavbar";
+import AuthDrawer from "@/components/cart/AuthDrawer";
 import { useShop } from "@/core/shop/ShopContext";
-import { loginWithEmail, signUpWithEmail, loginWithGoogle, logout } from "@/services/authService";
+import { logout } from "@/services/authService";
 import { db } from "@/core/firebase/firebase";
 import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { 
   Plus, Edit2, Trash2, LayoutDashboard, ShoppingCart, 
-  Package, LogOut, Loader2, ArrowUpRight, Check, X, ShieldAlert 
+  Package, LogOut, Loader2, Check, X, ShieldAlert, Users 
 } from "lucide-react";
 
 export default function AdminPage() {
-  const { user, isAdmin, products, setProducts, showToast } = useShop();
+  const { user, isAdmin, products, setProducts, showToast, setIsAuthOpen } = useShop();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
-
-  // Authentication Form States
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [loadingAccounts, setLoadingAccounts] = useState(false);
+  const [accountsSearch, setAccountsSearch] = useState("");
 
   // Product CRUD Form States
   const [editingProduct, setEditingProduct] = useState(null);
@@ -38,10 +36,11 @@ export default function AdminPage() {
   });
   const [savingProduct, setSavingProduct] = useState(false);
 
-  // Fetch orders when tab changes or admin status resolved
+  // Fetch orders and accounts when admin status resolved
   useEffect(() => {
     if (isAdmin) {
       fetchOrders();
+      fetchAccounts();
     }
   }, [isAdmin]);
 
@@ -64,43 +63,32 @@ export default function AdminPage() {
     }
   };
 
-  // Login handler
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    if (!email || !password) return;
+  const fetchAccounts = async () => {
     try {
-      setIsLoggingIn(true);
-      await loginWithEmail(email, password);
-      showToast("Accessing Admin Portal...", "success");
-    } catch (err) {
-      console.error("Login failed:", err);
-      // Self-healing demo account: if credentials do not exist, auto-create a demo administrator
-      if (email === "admin@bloomatelier.com" && password === "admin123") {
-        try {
-          showToast("Registering demo admin credentials...", "info");
-          await signUpWithEmail(email, password, "Atelier Administrator");
-          showToast("Logged in as Demo Admin!", "success");
-        } catch (signupErr) {
-          showToast("Authentication failed", "error");
-        }
-      } else {
-        showToast("Invalid credentials", "error");
-      }
+      setLoadingAccounts(true);
+      const querySnapshot = await getDocs(collection(db, "users"));
+      let accountsList = [];
+      querySnapshot.forEach((doc) => {
+        accountsList.push({ id: doc.id, ...doc.data() });
+      });
+      setAccounts(accountsList);
+    } catch (e) {
+      console.error("Error fetching accounts:", e);
+      showToast("Error loading registered users", "error");
     } finally {
-      setIsLoggingIn(false);
+      setLoadingAccounts(false);
     }
   };
 
-  // Google Login handler
-  const handleGoogleLogin = async () => {
+  const handleToggleRole = async (userId, currentRole) => {
+    const newRole = currentRole === "admin" ? "user" : "admin";
     try {
-      setIsLoggingIn(true);
-      await loginWithGoogle();
-      showToast("Accessing Admin Portal...", "success");
-    } catch (err) {
-      showToast("Google authentication failed", "error");
-    } finally {
-      setIsLoggingIn(false);
+      await updateDoc(doc(db, "users", userId), { role: newRole });
+      setAccounts(prev => prev.map(acc => acc.id === userId ? { ...acc, role: newRole } : acc));
+      showToast(`User role updated to ${newRole}`, "success");
+    } catch (e) {
+      console.error("Error toggling role:", e);
+      showToast("Failed to update user role", "error");
     }
   };
 
@@ -256,95 +244,52 @@ export default function AdminPage() {
   // 1. Auth Guard Gate: Logged-in & Admin Check
   if (!user || !isAdmin) {
     return (
-      <main className="bg-background min-h-screen selection:bg-accent/30 flex flex-col justify-between">
-        <Navbar />
-        <div className="flex-1 flex items-center justify-center px-6 py-28">
-          <div className="w-full max-w-md bg-secondary/35 border border-border p-8 rounded-2xl shadow-sm text-center space-y-8">
-            <div className="space-y-3">
-              <span className="text-accent text-[10px] font-bold uppercase tracking-[0.5em]">Studio Dashboard</span>
-              <h2 className="text-3xl font-black uppercase tracking-tight text-foreground">
-                Admin Portal
-              </h2>
-              <p className="text-muted text-xs font-medium max-w-xs mx-auto">
-                Sign in with your administrator account to access product management and orders tracking.
+      <main className="bg-background min-h-screen selection:bg-accent/30 flex items-center justify-center p-6">
+        <div className="w-full max-w-md bg-secondary/35 border border-border p-8 rounded-2xl shadow-sm text-center space-y-8 animate-slide-down-toast">
+          <div className="space-y-3">
+            <span className="text-accent text-[10px] font-bold uppercase tracking-[0.5em]">Studio Dashboard</span>
+            <h2 className="text-3xl font-black uppercase tracking-tight text-foreground">
+              Admin Portal
+            </h2>
+            <p className="text-muted text-xs font-medium max-w-xs mx-auto">
+              Access to the administrator workspace is restricted. Please sign in with an authorized account.
+            </p>
+          </div>
+
+          {user && !isAdmin && (
+            <div className="p-4 bg-accent/10 border border-accent/20 rounded-xl flex items-start gap-3 text-left">
+              <ShieldAlert size={16} className="text-foreground flex-shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-foreground">Access Denied</h4>
+                <p className="text-[10px] text-muted leading-relaxed font-semibold">
+                  The account <strong>{user.email}</strong> is not registered as an administrator. Please sign out and log in with an authorized account.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {!user ? (
+            <div className="space-y-4">
+              <button
+                onClick={() => setIsAuthOpen(true)}
+                className="w-full py-4 bg-foreground text-background font-bold text-xs uppercase tracking-widest rounded-full hover:bg-accent hover:text-accent-foreground transition-all duration-500 flex items-center justify-center gap-2"
+              >
+                Open Login Portal
+              </button>
+              <p className="text-center text-[9px] text-muted/40 font-extrabold uppercase tracking-widest pt-4">
+                Use your admin credentials in the central Bloom Atelier portal.
               </p>
             </div>
-
-            {user && !isAdmin && (
-              <div className="p-4 bg-accent/10 border border-accent/20 rounded-xl flex items-start gap-3 text-left">
-                <ShieldAlert size={16} className="text-foreground flex-shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-foreground">Access Denied</h4>
-                  <p className="text-[10px] text-muted leading-relaxed font-semibold">
-                    The account <strong>{user.email}</strong> is not registered as an administrator. Please sign out and log in with an authorized account.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {!user ? (
-              <form onSubmit={handleLogin} className="space-y-4 text-left">
-                <div className="space-y-1">
-                  <label className="text-[9px] font-extrabold uppercase tracking-wider text-muted">Email Address</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="admin@bloomatelier.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-5 py-3.5 bg-background border border-border rounded-full text-xs font-semibold focus:outline-none focus:border-accent transition-all duration-300"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[9px] font-extrabold uppercase tracking-wider text-muted">Password</label>
-                  <input
-                    type="password"
-                    required
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-5 py-3.5 bg-background border border-border rounded-full text-xs font-semibold focus:outline-none focus:border-accent transition-all duration-300"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoggingIn}
-                  className="w-full py-4 bg-foreground text-background font-bold text-xs uppercase tracking-widest rounded-full hover:bg-accent hover:text-accent-foreground transition-all duration-500 flex items-center justify-center gap-2 mt-2"
-                >
-                  {isLoggingIn ? <Loader2 size={14} className="animate-spin" /> : "Sign In"}
-                </button>
-
-                <div className="relative my-6 text-center">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border"></div></div>
-                  <span className="relative bg-background px-4 text-[8px] font-extrabold uppercase tracking-widest text-muted">Or</span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleGoogleLogin}
-                  disabled={isLoggingIn}
-                  className="w-full py-4 bg-background border border-border text-foreground font-bold text-xs uppercase tracking-widest rounded-full hover:bg-secondary/40 transition-all duration-500 flex items-center justify-center gap-2"
-                >
-                  Sign In with Google
-                </button>
-                
-                <p className="text-center text-[9px] text-muted/40 font-extrabold uppercase tracking-widest pt-4">
-                  Demo login: admin@bloomatelier.com / admin123
-                </p>
-              </form>
-            ) : (
-              <button
-                onClick={handleSignOut}
-                className="w-full py-4 bg-background border border-border text-foreground font-bold text-xs uppercase tracking-widest rounded-full hover:bg-accent hover:text-white transition-all duration-500 flex items-center justify-center gap-2"
-              >
-                <LogOut size={14} /> Log Out
-              </button>
-            )}
-          </div>
+          ) : (
+            <button
+              onClick={handleSignOut}
+              className="w-full py-4 bg-background border border-border text-foreground font-bold text-xs uppercase tracking-widest rounded-full hover:bg-accent hover:text-accent-foreground transition-all duration-500 flex items-center justify-center gap-2"
+            >
+              <LogOut size={14} /> Log Out
+            </button>
+          )}
         </div>
-        <Footer />
+        <AuthDrawer />
       </main>
     );
   }
@@ -352,7 +297,7 @@ export default function AdminPage() {
   // 2. Main Admin Dashboard View
   return (
     <main className="bg-background min-h-screen selection:bg-accent/30 flex flex-col justify-between">
-      <Navbar />
+      <AdminNavbar />
       
       <div className="flex-1 container mx-auto px-6 md:px-8 pt-28 pb-16">
         
@@ -399,7 +344,7 @@ export default function AdminPage() {
                 : "border-transparent text-foreground/40 hover:text-foreground"
             }`}
           >
-            <Package size={14} /> Catalog
+            <Package size={14} /> Catalog ({products.length})
           </button>
           <button
             onClick={() => setActiveTab("orders")}
@@ -411,13 +356,23 @@ export default function AdminPage() {
           >
             <ShoppingCart size={14} /> Orders ({orders.length})
           </button>
+          <button
+            onClick={() => setActiveTab("accounts")}
+            className={`flex items-center gap-2 py-4 border-b-2 text-[10px] font-bold uppercase tracking-widest transition-all ${
+              activeTab === "accounts"
+                ? "border-foreground text-foreground"
+                : "border-transparent text-foreground/40 hover:text-foreground"
+            }`}
+          >
+            <Users size={14} /> Accounts ({accounts.length})
+          </button>
         </div>
 
         {/* Tab Content Display */}
         {activeTab === "dashboard" && (
           <div className="space-y-10">
             {/* Analytics Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="bg-secondary/20 border border-border p-8 rounded-2xl space-y-2">
                 <span className="text-[9px] font-bold uppercase tracking-widest text-muted">Total Revenue (Settled)</span>
                 <h3 className="text-4xl font-extrabold tracking-tighter text-foreground">₹{totalSales}</h3>
@@ -427,8 +382,12 @@ export default function AdminPage() {
                 <h3 className="text-4xl font-extrabold tracking-tighter text-foreground">{orders.length}</h3>
               </div>
               <div className="bg-secondary/20 border border-border p-8 rounded-2xl space-y-2">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-muted">Catalog Products count</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-muted">Catalog Products Count</span>
                 <h3 className="text-4xl font-extrabold tracking-tighter text-foreground">{products.length}</h3>
+              </div>
+              <div className="bg-secondary/20 border border-border p-8 rounded-2xl space-y-2">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-muted">Registered Customers</span>
+                <h3 className="text-4xl font-extrabold tracking-tighter text-foreground">{accounts.length}</h3>
               </div>
             </div>
 
@@ -793,8 +752,103 @@ export default function AdminPage() {
           </div>
         )}
 
+        {activeTab === "accounts" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-bold uppercase tracking-tight text-foreground">Registered Accounts</h3>
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  placeholder="Search name or email..."
+                  value={accountsSearch}
+                  onChange={(e) => setAccountsSearch(e.target.value)}
+                  className="px-4 py-2.5 bg-secondary/35 border border-border rounded-full text-xs font-semibold focus:outline-none focus:border-accent w-64"
+                />
+                <button 
+                  onClick={fetchAccounts}
+                  className="p-3 border border-border rounded-full hover:bg-secondary/40 transition-all"
+                  title="Refresh accounts"
+                >
+                  <Loader2 size={14} className={loadingAccounts ? "animate-spin" : ""} />
+                </button>
+              </div>
+            </div>
+
+            {/* User Accounts List */}
+            <div className="bg-secondary/20 border border-border rounded-2xl overflow-hidden">
+              {loadingAccounts ? (
+                <div className="p-16 text-center text-xs uppercase tracking-widest animate-pulse font-bold text-muted">
+                  Retrieving user accounts...
+                </div>
+              ) : accounts.length === 0 ? (
+                <div className="p-16 text-center text-xs uppercase tracking-widest font-bold text-muted">
+                  No registered accounts found.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-secondary/40 border-b border-border uppercase font-bold text-foreground/50 tracking-wider">
+                      <tr>
+                        <th className="p-5">Name</th>
+                        <th className="p-5">Email</th>
+                        <th className="p-5">Role</th>
+                        <th className="p-5">Created At</th>
+                        <th className="p-5 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/60">
+                      {accounts
+                        .filter(acc => {
+                          const term = accountsSearch.toLowerCase();
+                          return (
+                            (acc.displayName || "").toLowerCase().includes(term) ||
+                            (acc.email || "").toLowerCase().includes(term)
+                          );
+                        })
+                        .map((account) => (
+                          <tr key={account.id} className="hover:bg-background/40 transition-colors">
+                            <td className="p-5 font-bold text-foreground">{account.displayName || "N/A"}</td>
+                            <td className="p-5 text-muted font-medium">{account.email || "N/A"}</td>
+                            <td className="p-5">
+                              <span className={`px-3 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-widest ${
+                                account.role === "admin" 
+                                  ? "bg-accent/20 text-accent border border-accent/20" 
+                                  : "bg-muted/10 text-muted/60 border border-muted/20"
+                              }`}>
+                                {account.role || "user"}
+                              </span>
+                            </td>
+                            <td className="p-5 text-muted font-medium">
+                              {account.createdAt ? new Date(account.createdAt).toLocaleDateString(undefined, {
+                                month: "short", day: "numeric", year: "numeric"
+                              }) : "N/A"}
+                            </td>
+                            <td className="p-5 text-right">
+                              <button
+                                onClick={() => handleToggleRole(account.id, account.role)}
+                                disabled={account.email === user.email} // Prevent self-demotion
+                                className={`px-4 py-2 border rounded-full text-[9px] font-extrabold uppercase tracking-widest transition-all ${
+                                  account.email === user.email 
+                                    ? "opacity-40 cursor-not-allowed border-border text-muted"
+                                    : account.role === "admin"
+                                    ? "border-red-500/20 text-red-500 hover:bg-red-500/10 hover:border-red-500/40"
+                                    : "border-accent/20 text-accent hover:bg-accent/10 hover:border-accent/40"
+                                }`}
+                              >
+                                {account.role === "admin" ? "Revoke Admin" : "Make Admin"}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
-      <Footer />
     </main>
   );
 }

@@ -2,6 +2,10 @@
 
 @import "tailwindcss";
 
+.admin-hidden {
+  display: none !important;
+}
+
 :root {
   /* Warm Parchment Studio Palette */
   --bg-main: #D9D4C8;
