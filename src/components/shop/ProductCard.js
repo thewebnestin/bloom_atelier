@@ -62,7 +62,7 @@ export default function ProductCard({ product, onQuickView }) {
           <div className="flex gap-2 justify-end lg:justify-start pointer-events-auto">
             <button
               onClick={handleAddToCart}
-              className="p-3 bg-white text-black rounded-full flex items-center justify-center hover:bg-accent hover:text-white transition-all duration-500 transform translate-y-0 lg:translate-y-4 lg:group-hover:translate-y-0 lg:flex-1 lg:py-3 lg:px-4 text-[9px] font-bold uppercase tracking-widest gap-2"
+              className="p-3 bg-white text-black rounded-full flex items-center justify-center lg:hover:bg-accent lg:hover:text-white transition-all duration-500 transform translate-y-0 lg:translate-y-4 lg:group-hover:translate-y-0 lg:flex-1 lg:py-3 lg:px-4 text-[9px] font-bold uppercase tracking-widest gap-2 focus:outline-none focus:ring-0 select-none"
             >
               {isInCart ? (
                 <Check className="w-4 h-4 lg:w-3 lg:h-3 text-accent" />

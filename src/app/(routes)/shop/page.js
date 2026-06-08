@@ -6,10 +6,11 @@ import ProductCard from '@/components/shop/ProductCard';
 import ProductModal from '@/components/shop/ProductModal';
 import CartDrawer from '@/components/cart/CartDrawer';
 import WishlistDrawer from '@/components/cart/WishlistDrawer';
-import { products } from '@/core/constants/ProductData';
+import { useShop } from '@/core/shop/ShopContext';
 import { Search, X, Inbox, SlidersHorizontal } from 'lucide-react';
 
 export default function ShopPage() {
+  const { products, loadingProducts } = useShop();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -188,7 +189,11 @@ export default function ShopPage() {
           )}
 
           {/* Conditional Rendering of Products */}
-          {filteredProducts.length === 0 ? (
+          {loadingProducts ? (
+            <div className="py-24 text-center text-xs uppercase tracking-[0.3em] font-extrabold text-muted animate-pulse">
+              Loading Catalog Collections...
+            </div>
+          ) : filteredProducts.length === 0 ? (
             /* Empty State */
             <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 max-w-md mx-auto">
               <div className="w-16 h-16 rounded-full bg-secondary/40 border border-border flex items-center justify-center text-foreground/40">

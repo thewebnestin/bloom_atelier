@@ -2,17 +2,25 @@
 import React from 'react';
 import { useShop } from '@/core/shop/ShopContext';
 import { X, ShoppingBag, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function CartDrawer() {
-  const { cart, isCartOpen, setIsCartOpen, removeFromCart } = useShop();
+  const router = useRouter();
+  const { cart, isCartOpen, setIsCartOpen, removeFromCart, user, setIsAuthOpen, showToast } = useShop();
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const handleCheckout = () => {
-    const message = `Hello Bloom Atelier,\n\nI would like to place an order for the following flowers:\n\n` +
-      cart.map(item => `- ${item.name} (${item.variantDetails.color} / ${item.variantDetails.size}) x${item.quantity} - ₹${item.price * item.quantity}`).join('\n') +
-      `\n\nSubtotal: ₹${subtotal}\n\nThank you!`;
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/918714793136?text=${encodedMessage}`, '_blank');
+    // Force Authentication: Guests cannot place orders
+    if (!user) {
+      setIsCartOpen(false); // Close Cart drawer
+      setIsAuthOpen(true); // Open Auth drawer
+      showToast("Please sign in or create an account to place your order.", "info");
+      return;
+    }
+
+    setIsCartOpen(false); // Close Cart drawer
+    router.push('/checkout');
   };
 
   if (!isCartOpen) return null;
@@ -45,12 +53,13 @@ export default function CartDrawer() {
           {cart.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-6">
               <p className="text-muted font-medium">Your cart is empty.</p>
-              <button 
-                className="px-10 py-3 rounded-none border border-border text-xs font-bold uppercase tracking-widest hover:bg-foreground hover:text-background transition-all duration-500"
+              <Link 
+                href="/shop"
+                className="px-10 py-3 rounded-full border border-border text-xs font-bold uppercase tracking-widest hover:bg-foreground hover:text-background transition-all duration-500"
                 onClick={() => setIsCartOpen(false)}
               >
                 Continue Exploring
-              </button>
+              </Link>
             </div>
           ) : (
             <div className="space-y-10">
@@ -91,7 +100,7 @@ export default function CartDrawer() {
               onClick={handleCheckout}
               className="w-full py-5 rounded-none bg-foreground text-background font-bold text-sm tracking-widest uppercase transition-all duration-500 hover:opacity-90 flex items-center justify-center gap-3"
             >
-              Order via WhatsApp <ArrowRight size={18} />
+              Proceed to Checkout <ArrowRight size={18} />
             </button>
           </div>
         )}

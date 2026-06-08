@@ -21,7 +21,16 @@ import SmoothScroll from "@/core/scroll/SmoothScroll";
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          try {
+            if (localStorage.getItem('isAdmin') === 'true' && window.location.pathname !== '/admin') {
+              document.documentElement.classList.add('admin-hidden');
+            }
+          } catch (e) {}
+        `}} />
+      </head>
       <body>
         <ShopProvider>
           <SmoothScroll>

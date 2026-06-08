@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import ProductCard from './ProductCard';
 import ProductModal from './ProductModal';
-import { products } from '@/core/constants/ProductData';
+import { useShop } from '@/core/shop/ShopContext';
 import Link from 'next/link';
 
 export const ProductGrid = ({ featuredOnly = false }) => {
+  const { products, loadingProducts } = useShop();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -48,15 +49,25 @@ export const ProductGrid = ({ featuredOnly = false }) => {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-8 sm:gap-y-16">
-          {displayProducts.map((product) => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onQuickView={handleQuickView} 
-            />
-          ))}
-        </div>
+        {loadingProducts ? (
+          <div className="py-24 text-center text-xs uppercase tracking-[0.3em] font-extrabold text-muted animate-pulse">
+            Loading Arrangements...
+          </div>
+        ) : displayProducts.length === 0 ? (
+          <div className="py-24 text-center text-xs uppercase tracking-[0.3em] font-extrabold text-muted">
+            No items in the archive collection.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-8 sm:gap-y-16">
+            {displayProducts.map((product) => (
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                onQuickView={handleQuickView} 
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Quick View Modal */}
