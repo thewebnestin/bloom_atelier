@@ -18,7 +18,7 @@ export default function ProductModal({ product, isOpen, onClose }) {
       <div className="absolute inset-0 bg-black/30 backdrop-blur-3xl" />
       
       <div 
-        className="relative w-full max-w-[1200px] bg-background rounded-[3.5rem] overflow-hidden border border-border shadow-2xl flex flex-col md:flex-row h-[90vh] md:h-auto animate-slide-up"
+        className="relative w-full max-w-[1200px] bg-background rounded-2xl overflow-hidden border border-border shadow-2xl flex flex-col md:flex-row h-[90vh] md:h-auto animate-slide-up"
         onClick={e => e.stopPropagation()}
       >
         <button 
@@ -41,19 +41,19 @@ export default function ProductModal({ product, isOpen, onClose }) {
             <div className="space-y-3">
               <span className="text-[10px] uppercase tracking-[0.3em] text-muted">{product.category}</span>
               <h2 className="text-5xl font-semibold tracking-tighter leading-none">{product.name}</h2>
-              <p className="text-2xl font-medium text-foreground/70">${product.price}</p>
+              <p className="text-2xl font-medium text-foreground/70">₹{product.price}</p>
             </div>
 
             <div className="h-[1px] bg-border w-full" />
 
             <div className="space-y-6">
               <div className="space-y-4">
-                <label className="text-[10px] uppercase tracking-widest text-muted font-bold">Palette</label>
+                <label className="text-[10px] uppercase tracking-widest text-muted font-bold">Choose Color</label>
                 <div className="flex gap-4">
                   {product.variants.colors.map(color => (
                     <button 
                       key={color.name}
-                      className={`w-10 h-10 rounded-full border-2 transition-all duration-500 hover:scale-110 ${selectedColor.name === color.name ? 'border-foreground scale-110' : 'border-transparent'}`}
+                      className={`w-9 h-9 rounded-full border-2 transition-all duration-500 hover:scale-110 ${selectedColor.name === color.name ? 'border-foreground scale-110' : 'border-transparent'}`}
                       style={{ backgroundColor: color.hex }}
                       onClick={() => setSelectedColor(color)}
                     />
@@ -62,12 +62,12 @@ export default function ProductModal({ product, isOpen, onClose }) {
               </div>
 
               <div className="space-y-4">
-                <label className="text-[10px] uppercase tracking-widest text-muted font-bold">Scale</label>
-                <div className="flex gap-3">
+                <label className="text-[10px] uppercase tracking-widest text-muted font-bold">Choose Size</label>
+                <div className="flex flex-wrap gap-3">
                   {product.variants.sizes.map(size => (
                     <button 
                       key={size}
-                      className={`px-6 py-2.5 rounded-full border text-[13px] font-medium transition-all duration-500 ${selectedSize === size ? 'bg-foreground text-background border-foreground' : 'border-border text-foreground hover:border-muted'}`}
+                      className={`px-4 py-2 border text-[10px] font-bold uppercase tracking-widest transition-all duration-500 rounded-none ${selectedSize === size ? 'bg-foreground text-background border-foreground' : 'border-border text-foreground hover:border-muted'}`}
                       onClick={() => setSelectedSize(size)}
                     >
                       {size}
@@ -78,11 +78,15 @@ export default function ProductModal({ product, isOpen, onClose }) {
             </div>
 
             <button 
-              className="w-full py-5 rounded-full bg-foreground text-background font-bold text-sm tracking-widest uppercase transition-all duration-500 hover:opacity-90 hover:scale-[1.01] active:scale-[0.99] shadow-xl"
+              className="w-full py-4 bg-foreground text-background font-bold text-xs tracking-[0.2em] uppercase transition-all duration-500 hover:opacity-90 hover:scale-[1.01] active:scale-[0.99] rounded-none"
               onClick={() => { addToCart(product, { color: selectedColor.name, size: selectedSize }); onClose(); }}
             >
-              Secure Arrangement
+              Add to Collection
             </button>
+
+            <p className="text-[9px] uppercase tracking-[0.25em] font-extrabold text-accent text-center bg-accent/10 py-3 rounded-none">
+              Free Shipping Across India • No COD
+            </p>
 
             <p className="text-sm leading-relaxed text-muted font-medium">
               {product.description}

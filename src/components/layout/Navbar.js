@@ -1,15 +1,15 @@
 "use client";
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useShop } from '@/core/shop/ShopContext';
-import { ShoppingBag, Moon, Sun, Menu, X, Heart, User } from 'lucide-react';
+import { ShoppingBag, Moon, Sun, Menu, X, Heart, User, Phone, MessageCircle } from 'lucide-react';
 import gsap from 'gsap';
 import Link from 'next/link';
 
 const NAV_LINKS = [
-  { label: 'Collections', href: '#catalog' },
-  { label: 'Archive', href: '#atelier' },
-  { label: 'Studio', href: '#studio' },
-  { label: 'Custom', href: '#custom' },
+  { label: 'Shop', href: '/shop' },
+  { label: 'Collections', href: '/#catalog' },
+  { label: 'Archive', href: '/#atelier' },
+  { label: 'Custom', href: '/#custom' },
 ];
 
 export default function Navbar() {
@@ -259,9 +259,59 @@ export default function Navbar() {
             </button>
           </nav>
 
-          {/* Bottom Bar */}
+          {/* Mobile Contact / Socials */}
           <div 
             ref={el => mobileLinksRef.current[NAV_LINKS.length + 2] = el}
+            className="flex justify-between items-center py-6 border-b border-border text-left"
+            style={{ opacity: 0 }}
+          >
+            <a 
+              href="https://www.instagram.com/bloomatelier.__"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2.5 text-[10px] font-extrabold uppercase tracking-widest text-foreground/50 hover:text-accent transition-colors"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="text-accent"
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+              Instagram
+            </a>
+            
+            <a 
+              href="https://wa.me/918714793136"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2.5 text-[10px] font-extrabold uppercase tracking-widest text-foreground/50 hover:text-accent transition-colors"
+            >
+              <MessageCircle size={16} className="text-accent" />
+              WhatsApp
+            </a>
+
+            <a 
+              href="tel:+918714793136"
+              className="flex items-center gap-2.5 text-[10px] font-extrabold uppercase tracking-widest text-foreground/50 hover:text-accent transition-colors"
+            >
+              <Phone size={16} className="text-accent" />
+              Call
+            </a>
+          </div>
+
+          {/* Bottom Bar */}
+          <div 
+            ref={el => mobileLinksRef.current[NAV_LINKS.length + 3] = el}
             className="flex items-center justify-between pt-8 border-t border-border"
             style={{ opacity: 0 }}
           >

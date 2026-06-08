@@ -1,23 +1,29 @@
 "use client";
-import React from 'react';
-import { Heart, ShoppingBag, ArrowUpRight } from 'lucide-react';
-import { useShop } from '@/core/shop/ShopContext';
-import Link from 'next/link';
+import React from "react";
+import { Heart, ShoppingBag, ArrowUpRight, Check } from "lucide-react";
+import { useShop } from "@/core/shop/ShopContext";
+import Link from "next/link";
 
 export default function ProductCard({ product, onQuickView }) {
-  const { toggleWishlist, wishlist, addToCart, setIsCartOpen } = useShop();
-  const isWishlisted = wishlist.some(item => item.id === product.id);
+  const { toggleWishlist, wishlist, addToCart, setIsCartOpen, cart } = useShop();
+  const isWishlisted = wishlist.some((item) => item.id === product.id);
+  const isInCart = cart.some((item) => item.id === product.id);
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (isInCart) {
+      setIsCartOpen(true);
+      return;
+    }
+
     // Default to first variant if exists
-    const variant = { 
-      color: product.variants?.colors?.[0]?.name || 'Standard', 
-      size: product.variants?.sizes?.[0] || 'OS' 
+    const variant = {
+      color: product.variants?.colors?.[0]?.name || "Standard",
+      size: product.variants?.sizes?.[0] || "OS",
     };
     addToCart(product, variant);
-    setIsCartOpen(true);
   };
 
   const handleWishlist = (e) => {
@@ -29,36 +35,49 @@ export default function ProductCard({ product, onQuickView }) {
   return (
     <div className="group relative flex flex-col bg-background h-full">
       {/* Image Container */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-secondary rounded-[1rem] border border-border transition-all duration-700 group-hover:border-accent/30">
-        <Link href={`/product/${product.id}`} className="block h-full w-full">
-          <img 
-            src={product.image} 
-            alt={product.name} 
-            className="h-full w-full object-cover transition-transform duration-[1.5s] cubic-bezier(0.16, 1, 0.3, 1) group-hover:scale-110" 
-          />
-        </Link>
+      <div className="relative aspect-[4/5] overflow-hidden bg-secondary rounded-lg transition-all duration-700">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="h-full w-full object-cover transition-transform duration-[1.5s] ease-butter group-hover:scale-110"
+        />
 
-        {/* Quick Actions Overlay */}
-        <div className="absolute inset-0 flex flex-col justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-          <div className="flex justify-end">
-            <button 
+        {/* Full-size link overlay */}
+        <Link
+          href={`/product/${product.id}`}
+          className="absolute inset-0 z-10"
+        />
+
+        {/* Quick Actions Overlay (Statically visible on mobile, hover animations on desktop) */}
+        <div className="absolute inset-0 flex flex-col justify-between p-4 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500 z-20 pointer-events-none">
+          <div className="flex justify-end pointer-events-auto">
+            <button
               onClick={handleWishlist}
-              className={`p-3 rounded-full backdrop-blur-md transition-all duration-300 ${isWishlisted ? 'bg-accent text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
+              className={`p-3 rounded-full backdrop-blur-md transition-all duration-300 ${isWishlisted ? "bg-accent text-white border border-accent" : "bg-background/80 text-foreground border border-border/40 hover:bg-accent hover:text-white hover:border-accent"}`}
             >
               <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} />
             </button>
           </div>
 
-          <div className="flex gap-2">
-            <button 
+          <div className="flex gap-2 justify-end lg:justify-start pointer-events-auto">
+            <button
               onClick={handleAddToCart}
-              className="flex-1 py-3 px-4 bg-white text-black rounded-full text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-accent hover:text-white transition-all duration-500 transform translate-y-4 group-hover:translate-y-0"
+              className="p-3 bg-white text-black rounded-full flex items-center justify-center hover:bg-accent hover:text-white transition-all duration-500 transform translate-y-0 lg:translate-y-4 lg:group-hover:translate-y-0 lg:flex-1 lg:py-3 lg:px-4 text-[9px] font-bold uppercase tracking-widest gap-2"
             >
-              <ShoppingBag size={12} /> Add to Cart
+              {isInCart ? (
+                <Check className="w-4 h-4 lg:w-3 lg:h-3 text-accent" />
+              ) : (
+                <ShoppingBag className="w-4 h-4 lg:w-3 lg:h-3" />
+              )}
+              <span className="hidden lg:inline">{isInCart ? "View Cart" : "Add to Collection"}</span>
             </button>
-            <button 
-              onClick={(e) => { e.preventDefault(); onQuickView(product); }}
-              className="p-3 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-white/40 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0 delay-75"
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onQuickView(product);
+              }}
+              className="p-3 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-white/40 transition-all duration-500 transform translate-y-0 lg:translate-y-4 lg:group-hover:translate-y-0 lg:delay-75 hidden lg:flex"
             >
               <ArrowUpRight size={16} />
             </button>
@@ -66,7 +85,7 @@ export default function ProductCard({ product, onQuickView }) {
         </div>
 
         {/* Category Badge (Standard View) */}
-        <div className="absolute top-4 left-4 pointer-events-none transition-opacity group-hover:opacity-0">
+        <div className="absolute top-4 left-4 pointer-events-none transition-opacity group-hover:opacity-0 z-30 hidden lg:block">
           <span className="px-3 py-1 bg-background/80 backdrop-blur-sm border border-border rounded-full text-[8px] font-extrabold uppercase tracking-widest text-foreground">
             {product.category}
           </span>
@@ -81,10 +100,13 @@ export default function ProductCard({ product, onQuickView }) {
               {product.name}
             </h3>
           </Link>
-          <span className="text-sm font-medium text-muted">${product.price}</span>
+          <span className="text-sm font-medium text-muted">
+            ₹{product.price}
+          </span>
         </div>
         <p className="text-[10px] text-muted leading-relaxed line-clamp-2 opacity-60">
-          {product.description || "Artisanally crafted floral arrangement with permanent studio preservation."}
+          {product.description ||
+            "Artisanally crafted floral arrangement with permanent studio preservation."}
         </p>
       </div>
     </div>

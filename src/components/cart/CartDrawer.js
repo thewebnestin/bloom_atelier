@@ -7,6 +7,14 @@ export default function CartDrawer() {
   const { cart, isCartOpen, setIsCartOpen, removeFromCart } = useShop();
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
+  const handleCheckout = () => {
+    const message = `Hello Bloom Atelier,\n\nI would like to place an order for the following flowers:\n\n` +
+      cart.map(item => `- ${item.name} (${item.variantDetails.color} / ${item.variantDetails.size}) x${item.quantity} - ₹${item.price * item.quantity}`).join('\n') +
+      `\n\nSubtotal: ₹${subtotal}\n\nThank you!`;
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/918714793136?text=${encodedMessage}`, '_blank');
+  };
+
   if (!isCartOpen) return null;
 
   return (
@@ -23,7 +31,7 @@ export default function CartDrawer() {
         <div className="p-8 flex justify-between items-center border-bottom border-border">
           <div className="flex items-center gap-4">
             <ShoppingBag size={20} className="text-muted" />
-            <h3 className="text-xl font-semibold tracking-tight">Your Collection</h3>
+            <h3 className="text-xl font-semibold tracking-tight">Your Cart</h3>
           </div>
           <button 
             className="p-2 text-foreground/50 hover:text-foreground transition-colors"
@@ -36,9 +44,9 @@ export default function CartDrawer() {
         <div className="flex-1 overflow-y-auto px-8 py-4">
           {cart.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-6">
-              <p className="text-muted font-medium">The collection is currently empty.</p>
+              <p className="text-muted font-medium">Your cart is empty.</p>
               <button 
-                className="px-10 py-3 rounded-full border border-border text-xs font-bold uppercase tracking-widest hover:bg-foreground hover:text-background transition-all duration-500"
+                className="px-10 py-3 rounded-none border border-border text-xs font-bold uppercase tracking-widest hover:bg-foreground hover:text-background transition-all duration-500"
                 onClick={() => setIsCartOpen(false)}
               >
                 Continue Exploring
@@ -48,14 +56,14 @@ export default function CartDrawer() {
             <div className="space-y-10">
               {cart.map(item => (
                 <div key={item.id + item.variant} className="flex gap-6 group">
-                  <div className="w-24 h-32 rounded-2xl overflow-hidden bg-secondary border border-border flex-shrink-0">
+                  <div className="w-24 h-32 rounded-none overflow-hidden bg-secondary border border-border flex-shrink-0">
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   </div>
                   <div className="flex-1 flex flex-col justify-between py-1">
                     <div className="space-y-1">
                       <div className="flex justify-between items-start">
                         <h4 className="text-sm font-semibold text-foreground tracking-tight">{item.name}</h4>
-                        <span className="text-sm font-medium text-muted">${item.price}</span>
+                        <span className="text-sm font-medium text-muted">₹{item.price}</span>
                       </div>
                       <p className="text-[11px] uppercase tracking-wider text-muted/60">{item.variantDetails.color} / {item.variantDetails.size}</p>
                     </div>
@@ -76,11 +84,14 @@ export default function CartDrawer() {
           <div className="p-8 space-y-6 bg-secondary/50 border-t border-border">
             <div className="flex justify-between items-center text-xl font-semibold tracking-tighter">
               <span>Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>₹{subtotal}</span>
             </div>
-            <p className="text-[11px] text-muted leading-relaxed">Complementary worldwide shipping. Taxes calculated at final stage.</p>
-            <button className="w-full py-5 rounded-full bg-foreground text-background font-bold text-sm tracking-widest uppercase transition-all duration-500 hover:opacity-90 flex items-center justify-center gap-3">
-              Finalize Order <ArrowRight size={18} />
+            <p className="text-[11px] text-muted leading-relaxed font-semibold">Free Shipping India • No COD</p>
+            <button 
+              onClick={handleCheckout}
+              className="w-full py-5 rounded-none bg-foreground text-background font-bold text-sm tracking-widest uppercase transition-all duration-500 hover:opacity-90 flex items-center justify-center gap-3"
+            >
+              Order via WhatsApp <ArrowRight size={18} />
             </button>
           </div>
         )}

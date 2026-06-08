@@ -52,7 +52,7 @@ export default function WishlistDrawer() {
                   <Link 
                     href={`/product/${item.id}`}
                     onClick={() => setIsWishlistOpen(false)}
-                    className="w-24 h-32 rounded-xl overflow-hidden bg-secondary border border-border flex-shrink-0"
+                    className="w-24 h-32 rounded-lg overflow-hidden bg-secondary border border-border flex-shrink-0"
                   >
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   </Link>
@@ -60,7 +60,7 @@ export default function WishlistDrawer() {
                     <div className="space-y-1">
                       <div className="flex justify-between items-start">
                         <h4 className="text-sm font-semibold text-foreground tracking-tight">{item.name}</h4>
-                        <span className="text-sm font-medium text-muted">${item.price}</span>
+                        <span className="text-sm font-medium text-muted">₹{item.price}</span>
                       </div>
                       <p className="text-[10px] uppercase tracking-widest text-accent font-bold">{item.category}</p>
                     </div>

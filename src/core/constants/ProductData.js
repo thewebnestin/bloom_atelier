@@ -1,57 +1,81 @@
 export const products = [
   {
     id: 1,
-    name: "Architectural Bloom No. 01",
-    price: 185,
-    category: "Studio Series",
+    name: "Classic Flower Stem",
+    price: 1299,
+    category: "Studio Collection",
+    featured: true,
     image: "/bloom_collection_1_1777980300798.png",
-    description: "A minimalist masterpiece featuring structural pipe-cleaner petals and a hand-crafted ceramic base. Designed for permanent display in modern sanctuaries.",
+    images: [
+      "/bloom_collection_1_1777980300798.png",
+      "/bloom_collection_2_1777980314662.png",
+      "/bloom_collection_3_1777980333675.png"
+    ],
+    description: "A simple handmade flower with green pipe-cleaner petals and a small ceramic base. Perfect for modern home decor.",
     variants: {
       colors: [
-        { name: "Forest Tint", hex: "#051f20" },
-        { name: "Raw Parchment", hex: "#D9D4C8" },
-        { name: "Dusty Blush", hex: "#F4C2C2" }
+        { name: "Dark Green", hex: "#051f20" },
+        { name: "Parchment", hex: "#D9D4C8" },
+        { name: "Soft Pink", hex: "#F4C2C2" }
       ],
       sizes: ["Standard", "Large", "Studio Reserve"]
     }
   },
   {
     id: 2,
-    name: "Velvet Sculpture Solo",
-    price: 120,
-    category: "Monochrome Collection",
+    name: "Velvet Flower Solo",
+    price: 899,
+    category: "Velvet Series",
+    featured: true,
     image: "/bloom_collection_2_1777980314662.png",
-    description: "A single, oversized bloom crafted from premium velvet-wrapped structural wire. A tactile statement piece that challenges the boundary between nature and art.",
+    images: [
+      "/bloom_collection_2_1777980314662.png",
+      "/bloom_collection_1_1777980300798.png",
+      "/bloom_collection_3_1777980333675.png"
+    ],
+    description: "A single large flower made from velvet-wrapped wire. A beautiful handmade piece for your shelf or desk.",
     variants: {
       colors: [
         { name: "Midnight Green", hex: "#051f20" },
-        { name: "Bone", hex: "#E5E1D8" }
+        { name: "Bone White", hex: "#E5E1D8" }
       ],
-      sizes: ["Solo Edition"]
+      sizes: ["Standard Size"]
     }
   },
   {
     id: 3,
-    name: "Geometric Cluster Suite",
-    price: 340,
-    category: "Avant-Garde",
+    name: "Modern Flower Cluster",
+    price: 2499,
+    category: "Art Series",
+    featured: true,
     image: "/bloom_collection_3_1777980333675.png",
-    description: "A complex arrangement of interlocking geometric floral forms. Each piece is individually wired to allow for custom sculptural manipulation.",
+    images: [
+      "/bloom_collection_3_1777980333675.png",
+      "/bloom_collection_1_1777980300798.png",
+      "/bloom_collection_2_1777980314662.png"
+    ],
+    description: "A beautiful group of geometric flowers. Each stem is flexible so you can shape it how you like.",
     variants: {
       colors: [
-        { name: "Multi-Tonal Forest", hex: "#0a2a2b" },
+        { name: "Forest Green Mix", hex: "#0a2a2b" },
         { name: "Parchment Mix", hex: "#D9D4C8" }
       ],
-      sizes: ["Gallery Scale"]
+      sizes: ["Large Bouquet"]
     }
   },
   {
     id: 4,
-    name: "Minimalist Stem IV",
-    price: 95,
-    category: "Studio Series",
+    name: "Minimalist Green Stem",
+    price: 599,
+    category: "Studio Collection",
+    featured: true,
     image: "/bloom_collection_1_1777980300798.png", 
-    description: "The essence of a flower reduced to its structural core. An exercise in restraint and permanent elegance.",
+    images: [
+      "/bloom_collection_1_1777980300798.png",
+      "/bloom_collection_3_1777980333675.png",
+      "/bloom_collection_2_1777980314662.png"
+    ],
+    description: "A simple single stem designed to look clean and last forever. Great for small spaces.",
     variants: {
       colors: [
         { name: "Signature Green", hex: "#051f20" }
@@ -61,31 +85,83 @@ export const products = [
   },
   {
     id: 5,
-    name: "Velvet Bloom Ensemble",
-    price: 260,
-    category: "Monochrome Collection",
+    name: "Velvet Flower Bouquet",
+    price: 1899,
+    category: "Velvet Series",
+    featured: true,
     image: "/bloom_collection_2_1777980314662.png",
-    description: "A collection of three velvet-wrapped blooms, harmoniously balanced for mantel or console display.",
+    images: [
+      "/bloom_collection_2_1777980314662.png",
+      "/bloom_collection_3_1777980333675.png",
+      "/bloom_collection_1_1777980300798.png"
+    ],
+    description: "A set of three velvet flowers. Perfect for decorating your living room table or shelf.",
     variants: {
       colors: [
-        { name: "Forest", hex: "#051f20" },
-        { name: "Rose", hex: "#F4C2C2" }
+        { name: "Forest Green", hex: "#051f20" },
+        { name: "Rose Pink", hex: "#F4C2C2" }
       ],
-      sizes: ["Standard Trio"]
+      sizes: ["Trio Set"]
     }
   },
   {
     id: 6,
-    name: "The Atelier Reserve",
-    price: 520,
-    category: "Gallery Edition",
+    name: "Atelier Special Edition",
+    price: 2999,
+    category: "Art Series",
+    featured: true,
     image: "/bloom_collection_3_1777980333675.png",
-    description: "Our most complex arrangement to date. A symphony of textures and tones, reserved for the most discerning collectors.",
+    images: [
+      "/bloom_collection_3_1777980333675.png",
+      "/bloom_collection_2_1777980314662.png",
+      "/bloom_collection_1_1777980300798.png"
+    ],
+    description: "Our most detailed handmade flower arrangement. A unique collection piece that stands out.",
     variants: {
       colors: [
         { name: "Studio Signature", hex: "#051f20" }
       ],
       sizes: ["Curated Scale"]
+    }
+  },
+  {
+    id: 7,
+    name: "Ethereal Silk Stem",
+    price: 1199,
+    category: "Art Series",
+    featured: true,
+    image: "/bloom_collection_1_1777980300798.png",
+    images: [
+      "/bloom_collection_1_1777980300798.png",
+      "/bloom_collection_2_1777980314662.png",
+      "/bloom_collection_3_1777980333675.png"
+    ],
+    description: "A delicate flower made from copper wire and silk thread that catches the light beautifully.",
+    variants: {
+      colors: [
+        { name: "Signature Green", hex: "#051f20" }
+      ],
+      sizes: ["Standard Stem"]
+    }
+  },
+  {
+    id: 8,
+    name: "Atelier Blossom Trio",
+    price: 1999,
+    category: "Studio Collection",
+    featured: true,
+    image: "/bloom_collection_2_1777980314662.png",
+    images: [
+      "/bloom_collection_2_1777980314662.png",
+      "/bloom_collection_3_1777980333675.png",
+      "/bloom_collection_1_1777980300798.png"
+    ],
+    description: "Three handmade flowers on a single stem. Great for styling simple vases and adding color.",
+    variants: {
+      colors: [
+        { name: "Raw Parchment", hex: "#D9D4C8" }
+      ],
+      sizes: ["Standard Trio"]
     }
   }
 ];
