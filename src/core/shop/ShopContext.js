@@ -48,6 +48,7 @@ export function ShopProvider({ children }) {
   const [theme, setTheme] = useState("light");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -160,6 +161,7 @@ export function ShopProvider({ children }) {
   const closeAllDrawers = () => {
     setIsCartOpen(false);
     setIsWishlistOpen(false);
+    setIsAuthOpen(false);
   };
 
   const addToCart = (product, variant, qty = 1) => {
@@ -260,6 +262,7 @@ export function ShopProvider({ children }) {
         theme,
         isCartOpen,
         isWishlistOpen,
+        isAuthOpen,
         user,
         isAdmin,
         toggleTheme,
@@ -271,6 +274,7 @@ export function ShopProvider({ children }) {
         removeFromWishlist,
         setIsCartOpen,
         setIsWishlistOpen,
+        setIsAuthOpen,
         toggleCart,
         closeAllDrawers,
         showToast,

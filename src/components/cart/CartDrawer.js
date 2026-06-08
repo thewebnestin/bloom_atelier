@@ -5,13 +5,21 @@ import { X, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CartDrawer() {
-  const { cart, isCartOpen, setIsCartOpen, removeFromCart, createOrder, user } = useShop();
+  const { cart, isCartOpen, setIsCartOpen, removeFromCart, createOrder, user, setIsAuthOpen, showToast } = useShop();
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const handleCheckout = async () => {
+    // Force Authentication: Guests cannot place orders
+    if (!user) {
+      setIsCartOpen(false); // Close Cart drawer
+      setIsAuthOpen(true); // Open Auth drawer
+      showToast("Please sign in or create an account to place your order.", "info");
+      return;
+    }
+
     try {
-      const customerName = user?.displayName || "Guest Customer";
-      const customerEmail = user?.email || "guest@example.com";
+      const customerName = user.displayName || "Customer";
+      const customerEmail = user.email || "";
       
       // Build message string BEFORE clearing the cart inside createOrder
       const message = `Hello Bloom Atelier,\n\nI would like to place an order for the following flowers:\n\n` +

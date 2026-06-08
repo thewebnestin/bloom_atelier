@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useShop } from '@/core/shop/ShopContext';
+import AuthDrawer from '../cart/AuthDrawer';
 import { ShoppingBag, Moon, Sun, Menu, X, Heart, User, Phone, MessageCircle } from 'lucide-react';
 import gsap from 'gsap';
 import Link from 'next/link';
@@ -15,8 +16,20 @@ const NAV_LINKS = [
 export default function Navbar() {
   const { 
     theme, toggleTheme, cart, wishlist, 
-    toggleCart, toggleWishlist, closeAllDrawers, isAdmin 
+    toggleCart, toggleWishlist, closeAllDrawers, isAdmin,
+    user, setIsAuthOpen
   } = useShop();
+
+  const handleProfileClick = async () => {
+    if (user) {
+      if (confirm(`Logged in as ${user.displayName || user.email}. Do you want to sign out?`)) {
+        const { logout } = await import('@/services/authService');
+        await logout();
+      }
+    } else {
+      setIsAuthOpen(true);
+    }
+  };
   
   const navRef = useRef(null);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -188,11 +201,13 @@ export default function Navbar() {
             </button>
 
             {/* Profile */}
-            {hasUser && (
-              <button className="p-3 text-foreground/40 hover:text-accent transition-all">
-                <User size={20} />
-              </button>
-            )}
+            <button 
+              onClick={handleProfileClick}
+              className={`p-3 transition-all duration-300 ${user ? 'text-accent' : 'text-foreground/40 hover:text-accent'}`}
+              title={user ? `Signed in as ${user.displayName || user.email}` : "Sign In"}
+            >
+              <User size={20} />
+            </button>
 
             {/* Mobile Hamburger */}
             <button 
@@ -360,6 +375,7 @@ export default function Navbar() {
           </div>
         </div>
       )}
+      <AuthDrawer />
     </>
   );
 }
