@@ -38,12 +38,13 @@ export default function WishlistDrawer() {
             <div className="h-full flex flex-col items-center justify-center text-center space-y-6">
               <Heart size={48} className="text-border" />
               <p className="text-muted font-medium">Your wishlist is empty.</p>
-              <button 
+              <Link 
+                href="/shop"
                 className="px-10 py-3 rounded-full border border-border text-xs font-bold uppercase tracking-widest hover:bg-foreground hover:text-background transition-all duration-500"
                 onClick={() => setIsWishlistOpen(false)}
               >
                 Discover Pieces
-              </button>
+              </Link>
             </div>
           ) : (
             <div className="space-y-8">

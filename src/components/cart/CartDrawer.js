@@ -2,6 +2,7 @@
 import React from 'react';
 import { useShop } from '@/core/shop/ShopContext';
 import { X, ShoppingBag, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 export default function CartDrawer() {
   const { cart, isCartOpen, setIsCartOpen, removeFromCart } = useShop();
@@ -45,12 +46,13 @@ export default function CartDrawer() {
           {cart.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-6">
               <p className="text-muted font-medium">Your cart is empty.</p>
-              <button 
-                className="px-10 py-3 rounded-none border border-border text-xs font-bold uppercase tracking-widest hover:bg-foreground hover:text-background transition-all duration-500"
+              <Link 
+                href="/shop"
+                className="px-10 py-3 rounded-full border border-border text-xs font-bold uppercase tracking-widest hover:bg-foreground hover:text-background transition-all duration-500"
                 onClick={() => setIsCartOpen(false)}
               >
                 Continue Exploring
-              </button>
+              </Link>
             </div>
           ) : (
             <div className="space-y-10">
