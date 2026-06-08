@@ -12,24 +12,24 @@ function Toast({ message, type, onClose }) {
   }, [onClose]);
 
   return (
-    <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[99999] flex items-center justify-between gap-4 bg-foreground text-background border border-border px-5 py-4 shadow-2xl rounded-none animate-slide-down-toast min-w-[280px] max-w-[90vw]">
+    <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[99999] flex items-center justify-between gap-4 bg-background/95 backdrop-blur-md border border-border px-6 py-3.5 shadow-[0_12px_40px_rgba(5,31,32,0.08)] rounded-full animate-slide-down-toast min-w-[280px] max-w-[90vw]">
       <div className="flex-1 flex items-center gap-3">
         {type === "success" ? (
-          <Check size={16} className="text-accent flex-shrink-0" />
+          <Check size={14} className="text-accent flex-shrink-0" />
         ) : (
           <Heart
-            size={16}
+            size={14}
             fill="currentColor"
             className="text-accent flex-shrink-0"
           />
         )}
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] leading-normal">
+        <p className="text-[9px] font-extrabold uppercase tracking-[0.18em] leading-normal text-foreground">
           {message}
         </p>
       </div>
       <button
         onClick={onClose}
-        className="text-background/40 hover:text-background text-[10px] uppercase font-bold tracking-[0.2em] ml-2 flex-shrink-0"
+        className="text-foreground/40 hover:text-foreground text-[10px] ml-1.5 flex-shrink-0 transition-colors"
       >
         ✕
       </button>
