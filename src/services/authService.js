@@ -4,7 +4,9 @@ import {
   signInWithEmailAndPassword, 
   signInWithPopup, 
   signOut, 
-  updateProfile 
+  updateProfile,
+  signInWithPhoneNumber,
+  RecaptchaVerifier
 } from "firebase/auth";
 
 /**
@@ -86,6 +88,61 @@ export async function logout() {
     localStorage.removeItem("user");
   } catch (error) {
     console.error("Logout error:", error);
+    throw error;
+  }
+}
+
+/**
+ * Initialize Invisible reCAPTCHA verifier for Phone Auth
+ */
+export function setUpRecaptcha(containerId) {
+  try {
+    return new RecaptchaVerifier(auth, containerId, {
+      size: "invisible",
+      callback: (response) => {
+        // reCAPTCHA solved
+      },
+      "expired-callback": () => {
+        // reCAPTCHA expired, reset
+      }
+    });
+  } catch (error) {
+    console.error("Recaptcha verifier error:", error);
+    throw error;
+  }
+}
+
+/**
+ * Send OTP Verification Code to the phone number
+ */
+export async function sendOtpToPhone(phoneNumber, appVerifier) {
+  try {
+    const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+    return confirmationResult;
+  } catch (error) {
+    console.error("SMS OTP request error:", error);
+    throw error;
+  }
+}
+
+/**
+ * Verify OTP Code and complete Sign In
+ */
+export async function verifyOtpCode(confirmationResult, otpCode) {
+  try {
+    const userCredential = await confirmationResult.confirm(otpCode);
+    const user = userCredential.user;
+    
+    const userData = {
+      uid: user.uid,
+      email: user.email || "",
+      displayName: user.displayName || "Phone User",
+      photoURL: user.photoURL || "",
+    };
+    localStorage.setItem("user", JSON.stringify(userData));
+    return userData;
+  } catch (error) {
+    console.error("OTP Verification error:", error);
     throw error;
   }
 }
