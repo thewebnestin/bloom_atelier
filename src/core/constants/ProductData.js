@@ -5,11 +5,9 @@ export const products = [
     price: 1299,
     category: "Studio Collection",
     featured: true,
-    image: "/bloom_collection_1_1777980300798.png",
+    image: "/BloomAtelier-Logo.jpeg",
     images: [
-      "/bloom_collection_1_1777980300798.png",
-      "/bloom_collection_2_1777980314662.png",
-      "/bloom_collection_3_1777980333675.png"
+      "/BloomAtelier-Logo.jpeg"
     ],
     description: "A simple handmade flower with green pipe-cleaner petals and a small ceramic base. Perfect for modern home decor.",
     variants: {
@@ -27,11 +25,9 @@ export const products = [
     price: 899,
     category: "Velvet Series",
     featured: true,
-    image: "/bloom_collection_2_1777980314662.png",
+    image: "/BloomAtelier-Logo.jpeg",
     images: [
-      "/bloom_collection_2_1777980314662.png",
-      "/bloom_collection_1_1777980300798.png",
-      "/bloom_collection_3_1777980333675.png"
+      "/BloomAtelier-Logo.jpeg"
     ],
     description: "A single large flower made from velvet-wrapped wire. A beautiful handmade piece for your shelf or desk.",
     variants: {
@@ -48,11 +44,9 @@ export const products = [
     price: 2499,
     category: "Art Series",
     featured: true,
-    image: "/bloom_collection_3_1777980333675.png",
+    image: "/BloomAtelier-Logo.jpeg",
     images: [
-      "/bloom_collection_3_1777980333675.png",
-      "/bloom_collection_1_1777980300798.png",
-      "/bloom_collection_2_1777980314662.png"
+      "/BloomAtelier-Logo.jpeg"
     ],
     description: "A beautiful group of geometric flowers. Each stem is flexible so you can shape it how you like.",
     variants: {
@@ -69,11 +63,9 @@ export const products = [
     price: 599,
     category: "Studio Collection",
     featured: true,
-    image: "/bloom_collection_1_1777980300798.png", 
+    image: "/BloomAtelier-Logo.jpeg", 
     images: [
-      "/bloom_collection_1_1777980300798.png",
-      "/bloom_collection_3_1777980333675.png",
-      "/bloom_collection_2_1777980314662.png"
+      "/BloomAtelier-Logo.jpeg"
     ],
     description: "A simple single stem designed to look clean and last forever. Great for small spaces.",
     variants: {
@@ -89,11 +81,9 @@ export const products = [
     price: 1899,
     category: "Velvet Series",
     featured: true,
-    image: "/bloom_collection_2_1777980314662.png",
+    image: "/BloomAtelier-Logo.jpeg",
     images: [
-      "/bloom_collection_2_1777980314662.png",
-      "/bloom_collection_3_1777980333675.png",
-      "/bloom_collection_1_1777980300798.png"
+      "/BloomAtelier-Logo.jpeg"
     ],
     description: "A set of three velvet flowers. Perfect for decorating your living room table or shelf.",
     variants: {
@@ -110,18 +100,16 @@ export const products = [
     price: 2999,
     category: "Art Series",
     featured: true,
-    image: "/bloom_collection_3_1777980333675.png",
+    image: "/BloomAtelier-Logo.jpeg",
     images: [
-      "/bloom_collection_3_1777980333675.png",
-      "/bloom_collection_2_1777980314662.png",
-      "/bloom_collection_1_1777980300798.png"
+      "/BloomAtelier-Logo.jpeg"
     ],
     description: "Our most detailed handmade flower arrangement. A unique collection piece that stands out.",
     variants: {
       colors: [
         { name: "Studio Signature", hex: "#051f20" }
       ],
-      sizes: ["Curated Scale"]
+      sizes: ["Signature Size"]
     }
   },
   {
@@ -130,11 +118,9 @@ export const products = [
     price: 1199,
     category: "Art Series",
     featured: true,
-    image: "/bloom_collection_1_1777980300798.png",
+    image: "/BloomAtelier-Logo.jpeg",
     images: [
-      "/bloom_collection_1_1777980300798.png",
-      "/bloom_collection_2_1777980314662.png",
-      "/bloom_collection_3_1777980333675.png"
+      "/BloomAtelier-Logo.jpeg"
     ],
     description: "A delicate flower made from copper wire and silk thread that catches the light beautifully.",
     variants: {
@@ -150,11 +136,9 @@ export const products = [
     price: 1999,
     category: "Studio Collection",
     featured: true,
-    image: "/bloom_collection_2_1777980314662.png",
+    image: "/BloomAtelier-Logo.jpeg",
     images: [
-      "/bloom_collection_2_1777980314662.png",
-      "/bloom_collection_3_1777980333675.png",
-      "/bloom_collection_1_1777980300798.png"
+      "/BloomAtelier-Logo.jpeg"
     ],
     description: "Three handmade flowers on a single stem. Great for styling simple vases and adding color.",
     variants: {

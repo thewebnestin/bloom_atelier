@@ -65,17 +65,25 @@ export default function CartDrawer() {
             <div className="space-y-10">
               {cart.map(item => (
                 <div key={item.id + item.variant} className="flex gap-6 group">
-                  <div className="w-24 h-32 rounded-none overflow-hidden bg-secondary border border-border flex-shrink-0">
+                  <Link 
+                    href={`/product/${item.id}`}
+                    onClick={() => setIsCartOpen(false)}
+                    className="w-24 h-32 rounded-none overflow-hidden bg-secondary border border-border flex-shrink-0 block"
+                  >
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  </div>
+                  </Link>
                   <div className="flex-1 flex flex-col justify-between py-1">
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-start">
-                        <h4 className="text-sm font-semibold text-foreground tracking-tight">{item.name}</h4>
-                        <span className="text-sm font-medium text-muted">₹{item.price}</span>
+                    <Link 
+                      href={`/product/${item.id}`}
+                      onClick={() => setIsCartOpen(false)}
+                      className="space-y-1 block hover:opacity-80 transition-opacity"
+                    >
+                      <div className="flex justify-between items-start gap-2">
+                        <h4 className="text-sm font-semibold text-foreground tracking-tight hover:text-accent transition-colors leading-tight">{item.name}</h4>
+                        <span className="text-sm font-medium text-muted shrink-0">₹{item.price}</span>
                       </div>
                       <p className="text-[11px] uppercase tracking-wider text-muted/60">{item.variantDetails.color} / {item.variantDetails.size}</p>
-                    </div>
+                    </Link>
                     <button 
                       className="text-[10px] uppercase font-bold tracking-[0.2em] text-foreground/40 hover:text-foreground transition-colors text-left"
                       onClick={() => removeFromCart(item.id + item.variant)}

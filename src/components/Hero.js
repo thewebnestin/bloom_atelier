@@ -26,17 +26,27 @@ export default function Hero() {
           </span>
         </div>
         
+        <div className="mb-10 flex justify-center">
+          <div className="h-28 w-28 md:h-36 md:w-36 rounded-full overflow-hidden border-2 border-border/40 shadow-2xl bg-secondary flex items-center justify-center group/logo hover:border-accent/40 transition-all duration-500">
+            <img 
+              src="/BloomAtelier-Logo.jpeg" 
+              alt="Bloom Atelier Logo" 
+              className="w-full h-full object-cover grayscale transition-all duration-700 group-hover/logo:grayscale-0 group-hover/logo:scale-105"
+            />
+          </div>
+        </div>
+        
         <h1 
           ref={titleRef}
           className="text-[9vw] md:text-[7rem] leading-[0.9] font-extrabold tracking-[-0.05em] mb-16 text-foreground uppercase"
         >
-          Curated <br />
+          Handmade <br />
           <span className="text-accent">Softness</span>
         </h1>
         
         <div className="relative w-full max-w-6xl mx-auto rounded-[1.5rem] overflow-hidden border border-border bg-secondary">
           <img 
-            src="/luxury_pipe_cleaner_bouquet_1777975715581.png" 
+            src="/hero.png" 
             alt="Hero Visual" 
             className="w-full h-auto object-cover grayscale hover:grayscale-0 transition-all duration-[2s]"
           />

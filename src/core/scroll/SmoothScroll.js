@@ -24,16 +24,18 @@ export default function SmoothScroll({ children }) {
     // Synchronize ScrollTrigger with Lenis scroll events
     lenis.on('scroll', ScrollTrigger.update);
 
-    let rafId;
-    function raf(time) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-    rafId = requestAnimationFrame(raf);
+    // Sync Lenis RAF with GSAP Ticker animation loop
+    const updateTicker = (time) => {
+      lenis.raf(time * 1000); // Convert seconds to milliseconds
+    };
+    gsap.ticker.add(updateTicker);
+
+    // Disable GSAP lag smoothing to keep scrolling synchronized
+    gsap.ticker.lagSmoothing(0);
 
     return () => {
       lenis.destroy();
-      cancelAnimationFrame(rafId);
+      gsap.ticker.remove(updateTicker);
     };
   }, []);
 

@@ -6,6 +6,7 @@ import { db, auth } from '@/core/firebase/firebase';
 import { collection, query, where, getDocs, doc, setDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
 import { logout } from '@/services/authService';
+import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
 
 export default function ProfileDrawer() {
   const { 
@@ -35,27 +36,6 @@ export default function ProfileDrawer() {
   const [zip, setZip] = useState('');
   const [savingAddress, setSavingAddress] = useState(false);
 
-  // Synchronize inputs with current user profile/user data
-  useEffect(() => {
-    if (user) {
-      setName(user.displayName || '');
-    }
-    if (userProfile) {
-      setPhone(userProfile.phone || '');
-      setAddressLine(userProfile.addressLine || '');
-      setCity(userProfile.city || '');
-      setStateName(userProfile.stateName || '');
-      setZip(userProfile.zip || '');
-    }
-  }, [user, userProfile]);
-
-  // Fetch orders when orders tab becomes active or drawer opens
-  useEffect(() => {
-    if (isProfileOpen && user && activeTab === 'orders') {
-      fetchUserOrders();
-    }
-  }, [isProfileOpen, user, activeTab]);
-
   const fetchUserOrders = async () => {
     try {
       setLoadingOrders(true);
@@ -78,6 +58,31 @@ export default function ProfileDrawer() {
       setLoadingOrders(false);
     }
   };
+
+  // Synchronize inputs with current user profile/user data
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      if (user) {
+        setName(user.displayName || '');
+      }
+      if (userProfile) {
+        setPhone(userProfile.phone || '');
+        setAddressLine(userProfile.addressLine || '');
+        setCity(userProfile.city || '');
+        setStateName(userProfile.stateName || '');
+        setZip(userProfile.zip || '');
+      }
+    });
+  }, [user, userProfile]);
+
+  // Fetch orders when orders tab becomes active or drawer opens
+  useEffect(() => {
+    if (isProfileOpen && user && activeTab === 'orders') {
+      requestAnimationFrame(() => {
+        fetchUserOrders();
+      });
+    }
+  }, [isProfileOpen, user, activeTab]);
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -307,7 +312,7 @@ export default function ProfileDrawer() {
                           rel="noopener noreferrer"
                           className="flex items-center gap-1.5 px-3.5 py-1.5 bg-background border border-border hover:bg-secondary/40 text-[9px] font-extrabold uppercase tracking-widest rounded-full transition-all text-foreground"
                         >
-                          <MessageCircle size={10} className="text-green-500" />
+                          <WhatsAppIcon size={11} className="text-emerald-500 fill-emerald-500/10 flex-shrink-0" />
                           Chat Support
                         </a>
                       </div>

@@ -47,7 +47,7 @@ export default function AdminNavbar() {
         {/* Left Side: Brand and Manager Indicator */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-4 group">
-            <div className="h-10 w-10 rounded-lg overflow-hidden border border-border/40">
+            <div className="h-10 w-10 rounded-full overflow-hidden border border-border/40">
               <img 
                 src="/BloomAtelier-Logo.jpeg" 
                 alt="Logo" 

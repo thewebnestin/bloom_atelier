@@ -13,8 +13,8 @@
   --text-main: #051f20;
   --text-muted: #3a4f50;
   
-  --accent: #F4C2C2; /* Baby Pink */
-  --accent-foreground: #051f20;
+  --accent: #051f20; /* Dark Greeny */
+  --accent-foreground: #D9D4C8; /* Warm Parchment */
   
   --border: rgba(5, 31, 32, 0.15);
   --border-muted: rgba(5, 31, 32, 0.05);
@@ -30,6 +30,8 @@
   --bg-secondary: #0a2a2b;
   --text-main: #D9D4C8;
   --text-muted: #a7a297;
+  --accent: #F4C2C2; /* Baby Pink */
+  --accent-foreground: #051f20; /* Dark Greeny */
   --border: rgba(217, 212, 200, 0.15);
   --border-muted: rgba(217, 212, 200, 0.05);
 }

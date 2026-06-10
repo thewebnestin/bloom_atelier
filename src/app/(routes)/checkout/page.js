@@ -10,6 +10,7 @@ import {
   MessageCircle, Loader2, ArrowLeft 
 } from 'lucide-react';
 import Link from 'next/link';
+import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
 
 export default function CheckoutPage() {
   const { 
@@ -31,16 +32,18 @@ export default function CheckoutPage() {
 
   // Autofill fields with loaded profile data
   useEffect(() => {
-    if (user) {
-      setFullName(user.displayName || '');
-    }
-    if (userProfile) {
-      setPhone(userProfile.phone || '');
-      setAddressLine(userProfile.addressLine || '');
-      setDistrict(userProfile.district || '');
-      setStateName(userProfile.stateName || '');
-      setPin(userProfile.zip || '');
-    }
+    requestAnimationFrame(() => {
+      if (user) {
+        setFullName(user.displayName || '');
+      }
+      if (userProfile) {
+        setPhone(userProfile.phone || '');
+        setAddressLine(userProfile.addressLine || '');
+        setDistrict(userProfile.district || '');
+        setStateName(userProfile.stateName || '');
+        setPin(userProfile.zip || '');
+      }
+    });
   }, [user, userProfile]);
 
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -206,7 +209,7 @@ export default function CheckoutPage() {
                 onClick={() => window.open(placedOrderDetails.whatsappUrl, '_blank')}
                 className="px-8 py-4.5 bg-foreground text-background font-bold text-xs uppercase tracking-widest rounded-full hover:bg-accent hover:text-accent-foreground transition-all duration-500 flex items-center justify-center gap-2.5 shadow-sm"
               >
-                <MessageCircle size={14} /> Notify on WhatsApp
+                <WhatsAppIcon size={14} className="flex-shrink-0" /> Notify on WhatsApp
               </button>
               <Link
                 href="/shop"
