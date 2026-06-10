@@ -7,12 +7,13 @@ import { ShoppingBag, Moon, Sun, Menu, X, Heart, User, Phone, MessageCircle } fr
 import gsap from 'gsap';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import WhatsAppIcon from '../ui/WhatsAppIcon';
 
 const NAV_LINKS = [
   { label: 'Shop', href: '/shop' },
   { label: 'Collections', href: '/#catalog' },
   { label: 'Archive', href: '/#atelier' },
-  { label: 'Custom', href: '/#custom' },
+  { label: 'Contact', href: '/#contact' },
 ];
 
 export default function Navbar() {
@@ -49,7 +50,6 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [hasUser, setHasUser] = useState(false);
   const mobileMenuRef = useRef(null);
   const mobileLinksRef = useRef([]);
 
@@ -66,11 +66,6 @@ export default function Navbar() {
     };
 
     window.addEventListener('scroll', handleScroll);
-
-    try {
-      const user = localStorage.getItem('user');
-      if (user) setHasUser(true);
-    } catch {}
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -147,7 +142,7 @@ export default function Navbar() {
       >
         <div className="container mx-auto px-6 md:px-8 flex justify-between items-center w-full">
           <Link href="/" className="flex items-center gap-4 group">
-            <div className="h-10 w-10 rounded-lg overflow-hidden">
+            <div className="h-10 w-10 rounded-full overflow-hidden border border-border/40">
               <img 
                 src="/BloomAtelier-Logo.jpeg" 
                 alt="Logo" 
@@ -178,11 +173,20 @@ export default function Navbar() {
           </div>
 
           {/* Right Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 sm:gap-3">
+            {/* Theme Toggle */}
+            <button 
+              onClick={toggleTheme}
+              className="flex p-2 sm:p-3 text-foreground/40 hover:text-accent transition-all duration-300"
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
             {/* Wishlist */}
             <button 
               onClick={() => toggleWishlist(null)}
-              className="relative p-3 text-foreground/40 hover:text-accent transition-all"
+              className="relative p-2 sm:p-3 text-foreground/40 hover:text-accent transition-all"
             >
               <Heart size={20} />
               {wishlist.length > 0 && (
@@ -195,7 +199,7 @@ export default function Navbar() {
             {/* Cart */}
             <button 
               onClick={toggleCart}
-              className="relative p-3 text-foreground/40 hover:text-accent transition-all"
+              className="relative p-2 sm:p-3 text-foreground/40 hover:text-accent transition-all"
             >
               <ShoppingBag size={20} />
               {cart.length > 0 && (
@@ -208,7 +212,7 @@ export default function Navbar() {
             {/* Profile */}
             <button 
               onClick={handleProfileClick}
-              className={`transition-all duration-300 ${user ? 'p-1' : 'p-3 text-foreground/40 hover:text-accent'}`}
+              className={`transition-all duration-300 ${user ? 'p-1' : 'p-2 sm:p-3 text-foreground/40 hover:text-accent'}`}
               title={user ? `Signed in as ${user.displayName || user.email}` : "Sign In"}
             >
               {user ? (
@@ -235,10 +239,11 @@ export default function Navbar() {
       {isMobileOpen && (
         <div 
           ref={mobileMenuRef}
-          className="fixed inset-0 z-[9998] bg-background flex flex-col justify-between px-8 pt-28 pb-12"
+          className="fixed inset-0 z-[9998] bg-background overflow-y-auto"
           style={{ clipPath: 'circle(0% at calc(100% - 40px) 40px)' }}
         >
-          <nav className="flex flex-col gap-0">
+          <div className="min-h-full flex flex-col justify-between px-8 pt-28 pb-12">
+            <nav className="flex flex-col gap-0">
             {NAV_LINKS.map((item, i) => {
               const isAnchor = item.href.startsWith('#');
               const Component = isAnchor ? 'a' : Link;
@@ -373,7 +378,7 @@ export default function Navbar() {
               rel="noopener noreferrer"
               className="flex items-center gap-2.5 text-[10px] font-extrabold uppercase tracking-widest text-foreground/50 hover:text-accent transition-colors"
             >
-              <MessageCircle size={16} className="text-accent" />
+              <WhatsAppIcon size={16} className="text-accent flex-shrink-0" />
               WhatsApp
             </a>
 
@@ -410,6 +415,7 @@ export default function Navbar() {
             </div>
           </div>
         </div>
+      </div>
       )}
       <AuthDrawer />
       <ProfileDrawer />

@@ -47,10 +47,6 @@ export function ShopProvider({ children }) {
   const [mounted, setMounted] = useState(false);
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [theme, setTheme] = useState("light");
@@ -65,6 +61,27 @@ export function ShopProvider({ children }) {
 
   const pathname = usePathname();
   const router = useRouter();
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type, id: Date.now() });
+  };
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      setMounted(true);
+      try {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "dark" || savedTheme === "light") {
+          setTheme(savedTheme);
+        } else {
+          const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          setTheme(systemPrefersDark ? "dark" : "light");
+        }
+      } catch (e) {
+        console.error("Failed to load theme from localStorage:", e);
+      }
+    });
+  }, []);
 
   // Global Role-Based Redirection & Visibility Guard
   useEffect(() => {
@@ -138,6 +155,12 @@ export function ShopProvider({ children }) {
           const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
           if (userDoc.exists()) {
             currentProfile = userDoc.data();
+            if (currentProfile.isBlocked === true) {
+              const { logout } = await import("@/services/authService");
+              await logout();
+              showToast("Your account has been blocked by an administrator.", "error");
+              return;
+            }
             isAdminDb = currentProfile.role === "admin";
           } else {
             // Create initial profile document with role
@@ -261,15 +284,16 @@ export function ShopProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
+    if (typeof document !== "undefined") {
+      document.documentElement.setAttribute("data-theme", theme);
+      try {
+        localStorage.setItem("theme", theme);
+      } catch (e) {}
+    }
   }, [theme]);
 
   const toggleTheme = () =>
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-
-  const showToast = (message, type = "success") => {
-    setToast({ message, type, id: Date.now() });
-  };
 
   const toggleCart = () => {
     setIsWishlistOpen(false);

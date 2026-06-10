@@ -8,7 +8,7 @@ import {
   signInWithPhoneNumber,
   RecaptchaVerifier
 } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 const ADMIN_EMAILS = ["admin@bloooms.atelier.com", "admin@bloomatelier.com", "admin@gmail.com", "rinshadcontacts@gmail.com"];
 
@@ -55,6 +55,14 @@ export async function loginWithEmail(email, password) {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     
+    // Check if user is blocked
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (userDoc.exists() && userDoc.data().isBlocked === true) {
+      await signOut(auth);
+      localStorage.removeItem("user");
+      throw new Error("Your account has been blocked by an administrator.");
+    }
+    
     const userData = {
       uid: user.uid,
       email: user.email,
@@ -76,6 +84,14 @@ export async function loginWithGoogle() {
   try {
     const userCredential = await signInWithPopup(auth, googleProvider);
     const user = userCredential.user;
+    
+    // Check if user is blocked
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (userDoc.exists() && userDoc.data().isBlocked === true) {
+      await signOut(auth);
+      localStorage.removeItem("user");
+      throw new Error("Your account has been blocked by an administrator.");
+    }
     
     const userData = {
       uid: user.uid,
@@ -144,6 +160,14 @@ export async function verifyOtpCode(confirmationResult, otpCode) {
   try {
     const userCredential = await confirmationResult.confirm(otpCode);
     const user = userCredential.user;
+    
+    // Check if user is blocked
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (userDoc.exists() && userDoc.data().isBlocked === true) {
+      await signOut(auth);
+      localStorage.removeItem("user");
+      throw new Error("Your account has been blocked by an administrator.");
+    }
     
     const userData = {
       uid: user.uid,

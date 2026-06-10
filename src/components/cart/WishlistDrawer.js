@@ -58,13 +58,17 @@ export default function WishlistDrawer() {
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   </Link>
                   <div className="flex-1 flex flex-col justify-between py-1">
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-start">
-                        <h4 className="text-sm font-semibold text-foreground tracking-tight">{item.name}</h4>
-                        <span className="text-sm font-medium text-muted">₹{item.price}</span>
+                    <Link 
+                      href={`/product/${item.id}`}
+                      onClick={() => setIsWishlistOpen(false)}
+                      className="space-y-1 block hover:opacity-80 transition-opacity"
+                    >
+                      <div className="flex justify-between items-start gap-2">
+                        <h4 className="text-sm font-semibold text-foreground tracking-tight hover:text-accent transition-colors leading-tight">{item.name}</h4>
+                        <span className="text-sm font-medium text-muted shrink-0">₹{item.price}</span>
                       </div>
                       <p className="text-[10px] uppercase tracking-widest text-accent font-bold">{item.category}</p>
-                    </div>
+                    </Link>
                     <div className="flex items-center gap-4">
                       <button 
                         className="text-[10px] uppercase font-bold tracking-[0.2em] text-foreground/40 hover:text-accent transition-colors"

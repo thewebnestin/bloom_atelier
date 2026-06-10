@@ -26,7 +26,7 @@ export const ProductGrid = ({ featuredOnly = false }) => {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 sm:mb-16 gap-6 sm:gap-8">
           <div className="space-y-3 max-w-xl">
             <span className="text-foreground/60 text-[10px] font-bold uppercase tracking-[0.4em]">
-              {featuredOnly ? "Curated Archive" : "Our Flowers"}
+              {featuredOnly ? "Featured Flowers" : "Our Flowers"}
             </span>
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter uppercase leading-none">
               {featuredOnly ? "Featured" : "Shop"} <br /> Collection
@@ -55,7 +55,7 @@ export const ProductGrid = ({ featuredOnly = false }) => {
           </div>
         ) : displayProducts.length === 0 ? (
           <div className="py-24 text-center text-xs uppercase tracking-[0.3em] font-extrabold text-muted">
-            No items in the archive collection.
+            No items in the collection.
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-8 sm:gap-y-16">

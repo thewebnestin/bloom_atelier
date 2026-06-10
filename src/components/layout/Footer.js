@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Phone, MessageCircle } from 'lucide-react';
+import WhatsAppIcon from '../ui/WhatsAppIcon';
 
 export default function Footer() {
   const videoRef = useRef(null);
@@ -88,7 +89,7 @@ export default function Footer() {
               { label: 'Shop', href: '/shop' },
               { label: 'Collections', href: '/#catalog' },
               { label: 'Archive', href: '/#atelier' },
-              { label: 'Custom', href: '/#custom' },
+              { label: 'Contact', href: '/#contact' },
             ].map(item => (
               <Link 
                 key={item.label} 
@@ -132,7 +133,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-[8px] uppercase font-bold tracking-[0.4em] text-[#DAF1DE]/40 hover:text-[#DAF1DE] transition-all duration-300 hover:scale-105"
             >
-              <MessageCircle size={14} className="opacity-80" strokeWidth={2} />
+              <WhatsAppIcon size={14} className="opacity-80 flex-shrink-0" />
               WhatsApp
             </a>
             <a 

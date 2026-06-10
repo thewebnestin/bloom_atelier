@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Bloom Atelier | Luxury Floral Design",
+  title: "Bloom Atelier | Custom Artwork & Creative Creations",
   description: "Exquisite floral arrangements and bespoke event design for life's most precious moments.",
 };
 

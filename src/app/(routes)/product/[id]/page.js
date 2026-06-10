@@ -35,8 +35,10 @@ export default function ProductDetails() {
 
   useEffect(() => {
     if (product) {
-      setSelectedColor(product.variants.colors[0]);
-      setSelectedSize(product.variants.sizes[0]);
+      requestAnimationFrame(() => {
+        setSelectedColor(product.variants.colors[0]);
+        setSelectedSize(product.variants.sizes[0]);
+      });
       
       // Page Entrance
       const tl = gsap.timeline();
