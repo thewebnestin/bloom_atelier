@@ -37,6 +37,7 @@ export default function AdminPage() {
     colorsInput: "Signature Green:#051f20, Soft Pink:#F4C2C2, Raw Parchment:#D9D4C8",
     sizesInput: "Standard, Large, Studio Reserve"
   });
+  const [colorVariants, setColorVariants] = useState([]);
   const [savingProduct, setSavingProduct] = useState(false);
   const [showColorDropdown, setShowColorDropdown] = useState(false);
 
@@ -117,6 +118,43 @@ export default function AdminPage() {
     }
   };
 
+  const handleColorMainImageChange = async (index, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      showToast(`Uploading variant image to Cloudinary...`, "info");
+      const url = await uploadToCloudinary(file);
+      setColorVariants(prev => prev.map((c, i) => i === index ? { ...c, image: url } : c));
+      showToast("Variant main image uploaded successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || "Failed to upload image", "error");
+    }
+  };
+
+  const handleColorDetailImagesChange = async (index, e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    try {
+      showToast(`Uploading ${files.length} variant detail images to Cloudinary...`, "info");
+      const urls = [];
+      for (const file of files) {
+        const url = await uploadToCloudinary(file);
+        urls.push(url);
+      }
+      setColorVariants(prev => prev.map((c, i) => i === index ? { 
+        ...c, 
+        images: [...(c.images || []), ...urls] 
+      } : c));
+      showToast("Variant detail images uploaded successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || "Failed to upload detail images", "error");
+    }
+  };
+
   const COLOR_PRESETS = [
     // --- Studio Core ---
     { name: "Signature Green", hex: "#051f20", category: "Studio Core" },
@@ -184,8 +222,10 @@ export default function AdminPage() {
     
     if (existsIdx > -1) {
       currentColors.splice(existsIdx, 1);
+      setColorVariants(prev => prev.filter(c => c.name.toLowerCase() !== preset.name.toLowerCase()));
     } else {
       currentColors.push(preset);
+      setColorVariants(prev => [...prev, { name: preset.name, hex: preset.hex, image: "", images: [] }]);
     }
     
     const newColorsString = currentColors
@@ -311,6 +351,11 @@ export default function AdminPage() {
   // Open Add Product Form
   const openAddForm = () => {
     setEditingProduct(null);
+    setColorVariants([
+      { name: "Signature Green", hex: "#051f20", image: "", images: [] },
+      { name: "Soft Pink", hex: "#F4C2C2", image: "", images: [] },
+      { name: "Raw Parchment", hex: "#D9D4C8", image: "", images: [] }
+    ]);
     setFormData({
       name: "",
       price: "",
@@ -337,6 +382,8 @@ export default function AdminPage() {
     // Parse sizes back to comma-separated
     const sizesString = product.variants?.sizes?.join(", ") || "";
 
+    setColorVariants(product.variants?.colors ? JSON.parse(JSON.stringify(product.variants.colors)) : []);
+
     setFormData({
       name: product.name || "",
       price: product.price || "",
@@ -362,17 +409,18 @@ export default function AdminPage() {
     try {
       setSavingProduct(true);
 
-      // Parse colors inputs
-      const colors = formData.colorsInput
-        .split(",")
-        .map(pair => {
-          const parts = pair.split(":");
-          if (parts.length === 2) {
-            return { name: parts[0].trim(), hex: parts[1].trim() };
-          }
-          return null;
-        })
-        .filter(Boolean);
+      // Parse colors inputs from rich variant state
+      const colors = colorVariants.map(c => {
+        const detailImages = c.images && c.images.length > 0 
+          ? c.images 
+          : (formData.images ? formData.images.split(",").map(img => img.trim()).filter(Boolean) : [formData.image]);
+        return {
+          name: c.name,
+          hex: c.hex,
+          image: c.image || formData.image,
+          images: detailImages
+        };
+      });
 
       // Parse sizes inputs
       const sizes = formData.sizesInput
@@ -870,6 +918,116 @@ export default function AdminPage() {
                     )}
                   </div>
 
+                  {/* Color-specific images configuration section */}
+                  {colorVariants.length > 0 && (
+                    <div className="space-y-6 md:col-span-2 border border-border/60 bg-secondary/5 p-6 rounded-2xl">
+                      <div className="space-y-1">
+                        <span className="text-accent text-[9px] font-bold uppercase tracking-[0.4em]">Variant Media</span>
+                        <h4 className="text-xs font-extrabold uppercase tracking-wider text-foreground">Configure Color Variant Images</h4>
+                      </div>
+                      
+                      <div className="space-y-6 divide-y divide-border/40">
+                        {colorVariants.map((color, index) => (
+                          <div key={index} className="pt-6 first:pt-0 space-y-4">
+                            <div className="flex items-center gap-3">
+                              <span className="w-3.5 h-3.5 rounded-full border border-border/20 shadow-sm" style={{ backgroundColor: color.hex }} />
+                              <span className="text-xs font-bold text-foreground uppercase tracking-wider">{color.name}</span>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {/* Color Main Image */}
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-extrabold uppercase tracking-wider text-muted">Main Image URL</label>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    placeholder="Image URL or upload"
+                                    value={color.image || ""}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setColorVariants(prev => prev.map((c, i) => i === index ? { ...c, image: val } : c));
+                                    }}
+                                    className="flex-1 px-5 py-2.5 bg-background border border-border rounded-full text-xs font-semibold focus:outline-none focus:border-accent"
+                                  />
+                                  <label className="px-4 py-2.5 border border-border rounded-full text-[9px] font-extrabold uppercase tracking-widest cursor-pointer hover:bg-secondary/40 text-foreground transition-all flex items-center justify-center min-w-[100px] text-center select-none">
+                                    Upload
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(e) => handleColorMainImageChange(index, e)}
+                                      className="hidden"
+                                    />
+                                  </label>
+                                </div>
+                                {color.image && (
+                                  <div className="mt-2 relative w-16 h-20 rounded-md border border-border overflow-hidden bg-secondary">
+                                    <img src={color.image} className="w-full h-full object-cover" alt="Variant Preview" />
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setColorVariants(prev => prev.map((c, i) => i === index ? { ...c, image: "" } : c));
+                                      }}
+                                      className="absolute top-1 right-1 p-0.5 bg-black/50 hover:bg-black text-white rounded-full transition-colors"
+                                    >
+                                      <X size={8} />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Color Detail Images */}
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-extrabold uppercase tracking-wider text-muted">Detail Image URLs (Comma-separated)</label>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    placeholder="URLs or upload multiple"
+                                    value={color.images ? color.images.join(", ") : ""}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setColorVariants(prev => prev.map((c, i) => i === index ? { ...c, images: val.split(",").map(i => i.trim()).filter(Boolean) } : c));
+                                    }}
+                                    className="flex-1 px-5 py-2.5 bg-background border border-border rounded-full text-xs font-semibold focus:outline-none focus:border-accent"
+                                  />
+                                  <label className="px-4 py-2.5 border border-border rounded-full text-[9px] font-extrabold uppercase tracking-widest cursor-pointer hover:bg-secondary/40 text-foreground transition-all flex items-center justify-center min-w-[100px] text-center select-none">
+                                    Upload
+                                    <input
+                                      type="file"
+                                      multiple
+                                      accept="image/*"
+                                      onChange={(e) => handleColorDetailImagesChange(index, e)}
+                                      className="hidden"
+                                    />
+                                  </label>
+                                </div>
+                                {color.images && color.images.length > 0 && (
+                                  <div className="mt-2 flex flex-wrap gap-2">
+                                    {color.images.map((imgUrl, imgIdx) => (
+                                      <div key={imgIdx} className="relative w-12 h-16 rounded-md border border-border overflow-hidden bg-secondary">
+                                        <img src={imgUrl} className="w-full h-full object-cover" alt="Detail Preview" />
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const updatedImages = [...color.images];
+                                            updatedImages.splice(imgIdx, 1);
+                                            setColorVariants(prev => prev.map((c, i) => i === index ? { ...c, images: updatedImages } : c));
+                                          }}
+                                          className="absolute top-0.5 right-0.5 p-0.5 bg-black/50 hover:bg-black text-white rounded-full transition-colors"
+                                        >
+                                          <X size={6} />
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="space-y-1">
                     <label className="text-[9px] font-extrabold uppercase tracking-wider text-muted">Sizes Input (Comma-separated)</label>
                     <input
@@ -1298,24 +1456,29 @@ export default function AdminPage() {
                     Ordered items
                   </h4>
                   <div className="divide-y divide-border/40">
-                    {selectedOrder.items?.map((item, index) => (
-                      <div key={index} className="flex gap-4 py-3 first:pt-0">
-                        {item.image && (
-                          <div className="w-10 h-14 bg-secondary border border-border/40 rounded overflow-hidden flex-shrink-0">
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    {selectedOrder.items?.map((item, index) => {
+                      const itemColor = item.variantDetails?.color;
+                      const colorObj = item.variants?.colors?.find(c => c.name === itemColor);
+                      const displayImage = colorObj?.image || item.image;
+                      return (
+                        <div key={index} className="flex gap-4 py-3 first:pt-0">
+                          {displayImage && (
+                            <div className="w-10 h-14 bg-secondary border border-border/40 rounded overflow-hidden flex-shrink-0">
+                              <img src={displayImage} alt={item.name} className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                          <div className="flex-1 flex flex-col justify-between text-xs">
+                            <div>
+                              <h5 className="font-bold text-foreground">{item.name}</h5>
+                              <p className="text-[9px] text-muted uppercase tracking-wider mt-0.5">
+                                {itemColor || item.variant} / {item.variantDetails?.size || "Standard"} (x{item.quantity})
+                              </p>
+                            </div>
+                            <span className="font-bold text-foreground mt-1">₹{item.price * item.quantity}</span>
                           </div>
-                        )}
-                        <div className="flex-1 flex flex-col justify-between text-xs">
-                          <div>
-                            <h5 className="font-bold text-foreground">{item.name}</h5>
-                            <p className="text-[9px] text-muted uppercase tracking-wider mt-0.5">
-                              {item.variantDetails?.color || item.variant} / {item.variantDetails?.size || "Standard"} (x{item.quantity})
-                            </p>
-                          </div>
-                          <span className="font-bold text-foreground mt-1">₹{item.price * item.quantity}</span>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 

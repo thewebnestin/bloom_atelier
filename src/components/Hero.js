@@ -29,7 +29,7 @@ export default function Hero() {
         <div className="mb-10 flex justify-center">
           <div className="h-28 w-28 md:h-36 md:w-36 rounded-full overflow-hidden border-2 border-border/40 shadow-2xl bg-secondary flex items-center justify-center group/logo hover:border-accent/40 transition-all duration-500">
             <img 
-              src="/BloomAtelier-Logo.jpeg" 
+              src="/icon.jpeg" 
               alt="Bloom Atelier Logo" 
               className="w-full h-full object-cover grayscale transition-all duration-700 group-hover/logo:grayscale-0 group-hover/logo:scale-105"
             />

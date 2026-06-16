@@ -144,7 +144,7 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-4 group">
             <div className="h-10 w-10 rounded-full overflow-hidden border border-border/40">
               <img 
-                src="/BloomAtelier-Logo.jpeg" 
+                src="/icon.jpeg" 
                 alt="Logo" 
                 className="w-full h-full object-cover grayscale transition-all group-hover:grayscale-0"
               />

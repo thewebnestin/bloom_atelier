@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, startTransition } from "react";
 import { Check, Heart } from "lucide-react";
 import { db, auth } from "../firebase/firebase";
 import { collection, getDocs, addDoc, doc, getDoc, setDoc } from "firebase/firestore";
@@ -87,10 +87,14 @@ export function ShopProvider({ children }) {
   useEffect(() => {
     // 1. Redirection checks
     if (user && isAdmin && pathname !== "/admin") {
-      router.push("/admin");
+      startTransition(() => {
+        router.push("/admin");
+      });
     }
     if (user && !isAdmin && pathname === "/admin") {
-      router.push("/");
+      startTransition(() => {
+        router.push("/");
+      });
     }
 
     // 2. Clear admin-hidden blocker class when safe to show content
@@ -277,6 +281,12 @@ export function ShopProvider({ children }) {
           const savedWishlist = localStorage.getItem("guest_wishlist");
           if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
         } catch (e) {}
+
+        if (pathname === "/admin") {
+          startTransition(() => {
+            router.push("/");
+          });
+        }
       }
     });
 
@@ -292,44 +302,52 @@ export function ShopProvider({ children }) {
     }
   }, [theme]);
 
-  const toggleTheme = () =>
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-
-  const toggleCart = () => {
-    setIsWishlistOpen(false);
-    setIsCartOpen((prev) => !prev);
+  const toggleTheme = () => {
+    startTransition(() => {
+      setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    });
   };
 
-  const toggleWishlist = (product) => {
-    if (!product) {
-      setIsCartOpen(false);
-      setIsWishlistOpen((prev) => !prev);
-      return;
-    }
-    setWishlist((prev) => {
-      const exists = prev.find((item) => item.id === product.id);
-      let updatedWishlist = [];
-      if (exists) {
-        showToast(`${product.name} removed from Wishlist`, "info");
-        updatedWishlist = prev.filter((item) => item.id !== product.id);
-      } else {
-        showToast(`${product.name} added to Wishlist`, "success");
-        updatedWishlist = [...prev, product];
+  const toggleCart = () => {
+    startTransition(() => {
+      setIsWishlistOpen(false);
+      setIsCartOpen((prev) => !prev);
+    });
+  };
+
+  const toggleWishlist = (product, variant = null) => {
+    startTransition(() => {
+      if (!product) {
+        setIsCartOpen(false);
+        setIsWishlistOpen((prev) => !prev);
+        return;
       }
-      
-      // Sync with Firestore if logged in
-      if (auth.currentUser) {
-        setDoc(doc(db, "wishlists", auth.currentUser.uid), { items: updatedWishlist })
-          .catch(err => console.error("Error syncing wishlist to Firestore:", err));
-      } else {
-        // Guest user - sync to localStorage
-        try {
-          localStorage.setItem("guest_wishlist", JSON.stringify(updatedWishlist));
-        } catch (e) {
-          console.error("Error saving guest wishlist:", e);
+      const variantName = variant || product.variants?.colors?.[0]?.name || "Standard";
+      setWishlist((prev) => {
+        const exists = prev.find((item) => item.id === product.id && item.wishlistVariant === variantName);
+        let updatedWishlist = [];
+        if (exists) {
+          showToast(`${product.name} (${variantName}) removed from Wishlist`, "info");
+          updatedWishlist = prev.filter((item) => !(item.id === product.id && item.wishlistVariant === variantName));
+        } else {
+          showToast(`${product.name} (${variantName}) added to Wishlist`, "success");
+          updatedWishlist = [...prev, { ...product, wishlistVariant: variantName }];
         }
-      }
-      return updatedWishlist;
+        
+        // Sync with Firestore if logged in
+        if (auth.currentUser) {
+          setDoc(doc(db, "wishlists", auth.currentUser.uid), { items: updatedWishlist })
+            .catch(err => console.error("Error syncing wishlist to Firestore:", err));
+        } else {
+          // Guest user - sync to localStorage
+          try {
+            localStorage.setItem("guest_wishlist", JSON.stringify(updatedWishlist));
+          } catch (e) {
+            console.error("Error saving guest wishlist:", e);
+          }
+        }
+        return updatedWishlist;
+      });
     });
   };
 
@@ -341,81 +359,87 @@ export function ShopProvider({ children }) {
   };
 
   const addToCart = (product, variant, qty = 1) => {
-    setCart((prev) => {
-      const existing = prev.find(
-        (item) =>
-          item.id === product.id &&
-          item.variant === variant.color + variant.size,
-      );
-      let updatedCart = [];
-      if (existing) {
-        updatedCart = prev.map((item) =>
-          item.id === product.id &&
-          item.variant === variant.color + variant.size
-            ? { ...item, quantity: item.quantity + qty }
-            : item,
+    startTransition(() => {
+      setCart((prev) => {
+        const existing = prev.find(
+          (item) =>
+            item.id === product.id &&
+            item.variant === variant.color + variant.size,
         );
-      } else {
-        updatedCart = [
-          ...prev,
-          {
-            ...product,
-            variant: variant.color + variant.size,
-            variantDetails: variant,
-            quantity: qty,
-          },
-        ];
-      }
-
-      // Sync with Firestore if logged in
-      if (auth.currentUser) {
-        setDoc(doc(db, "carts", auth.currentUser.uid), { items: updatedCart })
-          .catch(err => console.error("Error syncing cart to Firestore:", err));
-      } else {
-        // Guest user - sync to localStorage
-        try {
-          localStorage.setItem("guest_cart", JSON.stringify(updatedCart));
-        } catch (e) {
-          console.error("Error saving guest cart:", e);
+        let updatedCart = [];
+        if (existing) {
+          updatedCart = prev.map((item) =>
+            item.id === product.id &&
+            item.variant === variant.color + variant.size
+              ? { ...item, quantity: item.quantity + qty }
+              : item,
+          );
+        } else {
+          updatedCart = [
+            ...prev,
+            {
+              ...product,
+              variant: variant.color + variant.size,
+              variantDetails: variant,
+              quantity: qty,
+            },
+          ];
         }
-      }
-      return updatedCart;
-    });
 
-    setIsWishlistOpen(false);
+        // Sync with Firestore if logged in
+        if (auth.currentUser) {
+          setDoc(doc(db, "carts", auth.currentUser.uid), { items: updatedCart })
+            .catch(err => console.error("Error syncing cart to Firestore:", err));
+        } else {
+          // Guest user - sync to localStorage
+          try {
+            localStorage.setItem("guest_cart", JSON.stringify(updatedCart));
+          } catch (e) {
+            console.error("Error saving guest cart:", e);
+          }
+        }
+        return updatedCart;
+      });
+
+      setIsWishlistOpen(false);
+    });
     showToast(`Added to Cart: ${product.name}`, "success");
   };
 
   const removeFromCart = (itemId) => {
-    setCart((prev) => {
-      const updatedCart = prev.filter((item) => item.id + item.variant !== itemId);
-      
-      // Sync with Firestore if logged in
-      if (auth.currentUser) {
-        setDoc(doc(db, "carts", auth.currentUser.uid), { items: updatedCart })
-          .catch(err => console.error("Error syncing cart to Firestore:", err));
-      } else {
-        // Guest user - sync to localStorage
-        try {
-          localStorage.setItem("guest_cart", JSON.stringify(updatedCart));
-        } catch (e) {
-          console.error("Error saving guest cart:", e);
+    startTransition(() => {
+      setCart((prev) => {
+        const updatedCart = prev.filter((item) => item.id + item.variant !== itemId);
+        
+        // Sync with Firestore if logged in
+        if (auth.currentUser) {
+          setDoc(doc(db, "carts", auth.currentUser.uid), { items: updatedCart })
+            .catch(err => console.error("Error syncing cart to Firestore:", err));
+        } else {
+          // Guest user - sync to localStorage
+          try {
+            localStorage.setItem("guest_cart", JSON.stringify(updatedCart));
+          } catch (e) {
+            console.error("Error saving guest cart:", e);
+          }
         }
-      }
-      return updatedCart;
+        return updatedCart;
+      });
     });
   };
 
   const clearCart = () => {
-    setCart([]);
-    if (auth.currentUser) {
-      setDoc(doc(db, "carts", auth.currentUser.uid), { items: [] })
-        .catch(err => console.error("Error clearing cart:", err));
-    } else {
-      try {
-        localStorage.removeItem("guest_cart");
-      } catch (e) {}
-    }
+    startTransition(() => {
+      setCart([]);
+      if (auth.currentUser) {
+        setDoc(doc(db, "carts", auth.currentUser.uid), { items: [] })
+          .catch(err => console.error("Error clearing cart:", err));
+      } else {
+        try {
+          localStorage.removeItem("guest_cart");
+        } catch (e) {}
+      }
+    });
   };
 
   const createOrder = async (customerName, customerEmail, subtotal, billingDetails) => {
@@ -443,9 +467,14 @@ export function ShopProvider({ children }) {
     }
   };
 
-  const removeFromWishlist = (productId) => {
+  const removeFromWishlist = (productId, variantName = null) => {
     setWishlist((prev) => {
-      const updatedWishlist = prev.filter((item) => item.id !== productId);
+      const updatedWishlist = prev.filter((item) => {
+        if (variantName) {
+          return !(item.id === productId && item.wishlistVariant === variantName);
+        }
+        return item.id !== productId;
+      });
       
       // Sync with Firestore if logged in
       if (auth.currentUser) {

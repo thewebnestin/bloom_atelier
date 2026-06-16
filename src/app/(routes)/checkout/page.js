@@ -46,6 +46,13 @@ export default function CheckoutPage() {
     });
   }, [user, userProfile]);
 
+  // Scroll to top when order is confirmed and success screen is shown
+  useEffect(() => {
+    if (orderId) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }, [orderId]);
+
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const handleSubmitOrder = async (e) => {
@@ -374,22 +381,27 @@ export default function CheckoutPage() {
 
               {/* Items Summary list */}
               <div className="divide-y divide-border/40 max-h-80 overflow-y-auto pr-2">
-                {cart.map((item) => (
-                  <div key={item.id + item.variant} className="flex gap-4 py-4 first:pt-0">
-                    <div className="w-12 h-16 bg-secondary border border-border/40 overflow-hidden flex-shrink-0">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 flex flex-col justify-between text-xs">
-                      <div>
-                        <h4 className="font-bold text-foreground leading-tight">{item.name}</h4>
-                        <p className="text-[10px] text-muted mt-0.5 uppercase tracking-wider">
-                          {item.variantDetails.color} / {item.variantDetails.size} (x{item.quantity})
-                        </p>
+                {cart.map((item) => {
+                  const itemColor = item.variantDetails?.color;
+                  const colorObj = item.variants?.colors?.find(c => c.name === itemColor);
+                  const displayImage = colorObj?.image || item.image;
+                  return (
+                    <div key={item.id + item.variant} className="flex gap-4 py-4 first:pt-0">
+                      <div className="w-12 h-16 bg-secondary border border-border/40 overflow-hidden flex-shrink-0">
+                        <img src={displayImage} alt={item.name} className="w-full h-full object-cover" />
                       </div>
-                      <span className="font-bold text-foreground mt-1">₹{item.price * item.quantity}</span>
+                      <div className="flex-1 flex flex-col justify-between text-xs">
+                        <div>
+                          <h4 className="font-bold text-foreground leading-tight">{item.name}</h4>
+                          <p className="text-[10px] text-muted mt-0.5 uppercase tracking-wider">
+                            {itemColor} / {item.variantDetails.size} (x{item.quantity})
+                          </p>
+                        </div>
+                        <span className="font-bold text-foreground mt-1">₹{item.price * item.quantity}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Price calculations */}
