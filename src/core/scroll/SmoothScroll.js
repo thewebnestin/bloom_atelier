@@ -1,5 +1,6 @@
 "use client";
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -9,6 +10,9 @@ if (typeof window !== 'undefined') {
 }
 
 export default function SmoothScroll({ children }) {
+  const lenisRef = useRef(null);
+  const pathname = usePathname();
+
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.4,
@@ -20,6 +24,8 @@ export default function SmoothScroll({ children }) {
       smoothTouch: false,
       infinite: false,
     });
+
+    lenisRef.current = lenis;
 
     // Synchronize ScrollTrigger with Lenis scroll events
     lenis.on('scroll', ScrollTrigger.update);
@@ -36,8 +42,17 @@ export default function SmoothScroll({ children }) {
     return () => {
       lenis.destroy();
       gsap.ticker.remove(updateTicker);
+      lenisRef.current = null;
     };
   }, []);
+
+  // Resize Lenis and reset scroll on page transition to keep page height sync'd and scroll smooth
+  useEffect(() => {
+    if (lenisRef.current) {
+      lenisRef.current.resize();
+      lenisRef.current.scrollTo(0, { immediate: true });
+    }
+  }, [pathname]);
 
   return <>{children}</>;
 }

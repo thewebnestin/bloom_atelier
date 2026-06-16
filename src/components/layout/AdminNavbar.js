@@ -10,6 +10,7 @@ export default function AdminNavbar() {
   const { theme, toggleTheme, user, showToast } = useShop();
   const navRef = useRef(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     gsap.to(navRef.current, {
@@ -27,7 +28,12 @@ export default function AdminNavbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleSignOut = async () => {
+  const handleSignOut = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    setShowLogoutConfirm(false);
     try {
       await logout();
       showToast("Signed out from Admin Workspace.", "info");
@@ -49,7 +55,7 @@ export default function AdminNavbar() {
           <div className="flex items-center gap-4 group">
             <div className="h-10 w-10 rounded-full overflow-hidden border border-border/40">
               <img 
-                src="/BloomAtelier-Logo.jpeg" 
+                src="/icon.jpeg" 
                 alt="Logo" 
                 className="w-full h-full object-cover grayscale transition-all"
               />
@@ -91,6 +97,42 @@ export default function AdminNavbar() {
           </button>
         </div>
       </div>
+
+      {/* Bloom Atelier Custom Confirmation Box */}
+      {showLogoutConfirm && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-md z-[100000] flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <div 
+            className="bg-background border border-border w-full max-w-xs rounded-2xl p-6 text-center space-y-5 shadow-2xl animate-slide-up"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="space-y-2">
+              <span className="text-accent text-[9px] font-bold uppercase tracking-[0.5em] block">Confirm Action</span>
+              <h4 className="text-base font-black uppercase tracking-tight text-foreground">Sign Out?</h4>
+              <p className="text-muted text-[11px] font-semibold leading-relaxed">
+                Are you sure you want to end your administration session?
+              </p>
+            </div>
+            
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={handleConfirmLogout}
+                className="flex-1 py-3 bg-foreground text-background hover:bg-accent hover:text-accent-foreground text-[10px] font-extrabold uppercase tracking-widest rounded-full transition-all duration-300 shadow-sm border border-transparent"
+              >
+                Sign Out
+              </button>
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 py-3 border border-border bg-background hover:bg-secondary/40 text-foreground text-[10px] font-extrabold uppercase tracking-widest rounded-full transition-all duration-300"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

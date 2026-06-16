@@ -30,7 +30,7 @@ export default function ProductModal({ product, isOpen, onClose }) {
 
         <div className="w-full md:w-[55%] bg-secondary flex items-center justify-center overflow-hidden">
           <img 
-            src={product.image} 
+            src={selectedColor?.image || product.image} 
             alt={product.name} 
             className="w-full h-full object-cover transition-transform duration-[2s] hover:scale-105"
           />
@@ -85,7 +85,7 @@ export default function ProductModal({ product, isOpen, onClose }) {
             </button>
 
             <p className="text-[9px] uppercase tracking-[0.25em] font-extrabold text-accent text-center bg-accent/10 py-3 rounded-none">
-              Free Shipping Across India • No COD
+              Free Shipping Across India • No COD • No Returns
             </p>
 
             <p className="text-sm leading-relaxed text-muted font-medium">

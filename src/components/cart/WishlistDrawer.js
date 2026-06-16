@@ -48,38 +48,44 @@ export default function WishlistDrawer() {
             </div>
           ) : (
             <div className="space-y-8">
-              {wishlist.map(item => (
-                <div key={item.id} className="flex gap-6 group">
-                  <Link 
-                    href={`/product/${item.id}`}
-                    onClick={() => setIsWishlistOpen(false)}
-                    className="w-24 h-32 rounded-lg overflow-hidden bg-secondary border border-border flex-shrink-0"
-                  >
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  </Link>
-                  <div className="flex-1 flex flex-col justify-between py-1">
+              {wishlist.map(item => {
+                const colorObj = item.variants?.colors?.find(c => c.name === item.wishlistVariant);
+                const displayImage = colorObj?.image || item.image;
+                return (
+                  <div key={item.id + '-' + (item.wishlistVariant || 'Standard')} className="flex gap-6 group">
                     <Link 
-                      href={`/product/${item.id}`}
+                      href={`/product/${item.id}${item.wishlistVariant ? `?color=${encodeURIComponent(item.wishlistVariant)}` : ''}`}
                       onClick={() => setIsWishlistOpen(false)}
-                      className="space-y-1 block hover:opacity-80 transition-opacity"
+                      className="w-24 h-32 rounded-lg overflow-hidden bg-secondary border border-border flex-shrink-0"
                     >
-                      <div className="flex justify-between items-start gap-2">
-                        <h4 className="text-sm font-semibold text-foreground tracking-tight hover:text-accent transition-colors leading-tight">{item.name}</h4>
-                        <span className="text-sm font-medium text-muted shrink-0">₹{item.price}</span>
-                      </div>
-                      <p className="text-[10px] uppercase tracking-widest text-accent font-bold">{item.category}</p>
+                      <img src={displayImage} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     </Link>
-                    <div className="flex items-center gap-4">
-                      <button 
-                        className="text-[10px] uppercase font-bold tracking-[0.2em] text-foreground/40 hover:text-accent transition-colors"
-                        onClick={() => removeFromWishlist(item.id)}
+                    <div className="flex-1 flex flex-col justify-between py-1">
+                      <Link 
+                        href={`/product/${item.id}${item.wishlistVariant ? `?color=${encodeURIComponent(item.wishlistVariant)}` : ''}`}
+                        onClick={() => setIsWishlistOpen(false)}
+                        className="space-y-1 block hover:opacity-80 transition-opacity"
                       >
-                        Remove
-                      </button>
+                        <div className="flex justify-between items-start gap-2">
+                          <h4 className="text-sm font-semibold text-foreground tracking-tight hover:text-accent transition-colors leading-tight">{item.name}</h4>
+                          <span className="text-sm font-medium text-muted shrink-0">₹{item.price}</span>
+                        </div>
+                        <p className="text-[10px] uppercase tracking-widest text-accent font-bold">
+                          {item.category} {item.wishlistVariant ? `· ${item.wishlistVariant}` : ''}
+                        </p>
+                      </Link>
+                      <div className="flex items-center gap-4">
+                        <button 
+                          className="text-[10px] uppercase font-bold tracking-[0.2em] text-foreground/40 hover:text-accent transition-colors"
+                          onClick={() => removeFromWishlist(item.id, item.wishlistVariant)}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

@@ -5,6 +5,24 @@ import ProductModal from './ProductModal';
 import { useShop } from '@/core/shop/ShopContext';
 import Link from 'next/link';
 
+const ProductCardSkeleton = () => (
+  <div className="flex flex-col h-full animate-pulse">
+    {/* Image Container */}
+    <div className="aspect-[4/5] bg-secondary/80 rounded-lg" />
+    {/* Info Section */}
+    <div className="pt-6 space-y-3">
+      <div className="flex justify-between items-start gap-4">
+        <div className="h-4 bg-secondary/80 rounded-full w-2/3" />
+        <div className="h-4 bg-secondary/80 rounded-full w-12" />
+      </div>
+      <div className="space-y-2">
+        <div className="h-3 bg-secondary/80 rounded-full w-full" />
+        <div className="h-3 bg-secondary/80 rounded-full w-5/6" />
+      </div>
+    </div>
+  </div>
+);
+
 export const ProductGrid = ({ featuredOnly = false }) => {
   const { products, loadingProducts } = useShop();
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -50,8 +68,10 @@ export const ProductGrid = ({ featuredOnly = false }) => {
 
         {/* Grid */}
         {loadingProducts ? (
-          <div className="py-24 text-center text-xs uppercase tracking-[0.3em] font-extrabold text-muted animate-pulse">
-            Loading Arrangements...
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-8 sm:gap-y-16">
+            {[...Array(featuredOnly ? 4 : 8)].map((_, idx) => (
+              <ProductCardSkeleton key={idx} />
+            ))}
           </div>
         ) : displayProducts.length === 0 ? (
           <div className="py-24 text-center text-xs uppercase tracking-[0.3em] font-extrabold text-muted">

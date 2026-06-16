@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Link from 'next/link';
 import CartDrawer from '@/components/cart/CartDrawer';
@@ -8,7 +8,7 @@ import WishlistDrawer from '@/components/cart/WishlistDrawer';
 import Footer from '@/components/layout/Footer';
 import ProductCard from '@/components/shop/ProductCard';
 import { useShop } from '@/core/shop/ShopContext';
-import { ArrowLeft, Plus, Minus, ShieldCheck, Heart, Truck, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Plus, Minus, ShieldCheck, Heart, Truck, RotateCcw, Ban } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -19,6 +19,8 @@ if (typeof window !== 'undefined') {
 export default function ProductDetails() {
   const { id } = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const colorParam = searchParams.get('color');
   const { products, loadingProducts, addToCart, setIsCartOpen, toggleWishlist, wishlist } = useShop();
   const product = products.find(p => String(p.id) === String(id));
   
@@ -36,7 +38,10 @@ export default function ProductDetails() {
   useEffect(() => {
     if (product) {
       requestAnimationFrame(() => {
-        setSelectedColor(product.variants.colors[0]);
+        const queryColor = colorParam 
+          ? product.variants.colors.find(c => c.name.toLowerCase() === colorParam.toLowerCase())
+          : null;
+        setSelectedColor(queryColor || product.variants.colors[0]);
         setSelectedSize(product.variants.sizes[0]);
       });
       
@@ -50,13 +55,60 @@ export default function ProductDetails() {
     return () => {
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
-  }, [product]);
+  }, [product, colorParam]);
+
+  useEffect(() => {
+    setActiveImageIndex(0);
+  }, [selectedColor]);
+
+  const currentColorImages = (() => {
+    if (selectedColor) {
+      if (selectedColor.images && selectedColor.images.length > 0) {
+        return selectedColor.images;
+      }
+      if (selectedColor.image) {
+        return [selectedColor.image];
+      }
+    }
+    return product ? (product.images || [product.image]) : [];
+  })();
 
   if (loadingProducts) {
     return (
-      <div className="h-screen flex items-center justify-center bg-background text-foreground text-xs uppercase tracking-[0.3em] font-extrabold animate-pulse">
-        Loading Arrangement...
-      </div>
+      <main className="bg-background min-h-screen selection:bg-accent/30 animate-pulse">
+        <Navbar />
+        <div className="flex flex-col lg:flex-row min-h-screen">
+          {/* Left: Product Images Space */}
+          <div className="w-full lg:w-1/2 lg:h-screen lg:sticky lg:top-0 bg-secondary/30 flex flex-col p-6 sm:p-12 lg:p-16 pt-24 justify-center items-center">
+            <div className="flex flex-col-reverse sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full max-w-xl">
+              {/* Thumbnails */}
+              <div className="flex flex-row sm:flex-col gap-3 w-full sm:w-auto">
+                {[...Array(4)].map((_, idx) => (
+                  <div key={idx} className="w-14 h-14 sm:w-16 sm:h-16 rounded-md bg-secondary/80 flex-shrink-0" />
+                ))}
+              </div>
+              {/* Main Image Container */}
+              <div className="bg-secondary/40 border border-border shadow-sm rounded-lg aspect-[3/4] h-[38vh] sm:h-[45vh] lg:h-[50vh] w-full max-w-full" />
+            </div>
+          </div>
+          {/* Right: Info Space */}
+          <div className="w-full lg:w-1/2 px-6 sm:px-12 md:px-20 pt-8 lg:pt-36 pb-16 lg:pb-20 space-y-8">
+            <div className="h-3 bg-secondary/80 rounded-full w-24" />
+            <div className="space-y-3">
+              <div className="h-8 bg-secondary/80 rounded-full w-3/4" />
+              <div className="h-8 bg-secondary/80 rounded-full w-1/2" />
+            </div>
+            <div className="h-6 bg-secondary/80 rounded-full w-32" />
+            <div className="h-[1px] bg-border w-full" />
+            <div className="space-y-4 pt-4">
+              <div className="h-3 bg-secondary/80 rounded-full w-full" />
+              <div className="h-3 bg-secondary/80 rounded-full w-5/6" />
+              <div className="h-3 bg-secondary/80 rounded-full w-4/5" />
+            </div>
+            <div className="h-12 bg-secondary/80 rounded-full w-full max-w-md pt-6" />
+          </div>
+        </div>
+      </main>
     );
   }
 
@@ -93,7 +145,7 @@ export default function ProductDetails() {
               
               {/* Column of Thumbnails (Left side) */}
               <div className="flex flex-row sm:flex-col gap-3 overflow-x-auto sm:overflow-y-auto scrollbar-none py-2 sm:py-0 w-full sm:w-auto justify-center sm:justify-start">
-                {(product.images || [product.image]).map((img, index) => (
+                {currentColorImages.map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setActiveImageIndex(index)}
@@ -111,7 +163,7 @@ export default function ProductDetails() {
               {/* Main Image White Border Container (centered with borders like the screenshot) */}
               <div className="bg-white p-3 sm:p-5 border border-border shadow-sm rounded-lg relative aspect-[3/4] h-[38vh] sm:h-[45vh] lg:h-[50vh] max-w-full flex items-center justify-center overflow-hidden">
                 <img 
-                  src={product.images ? product.images[activeImageIndex] : product.image} 
+                  src={currentColorImages[activeImageIndex] || product.image} 
                   alt={product.name} 
                   className="w-full h-full object-cover rounded"
                 />
@@ -255,9 +307,9 @@ export default function ProductDetails() {
                 </span>
               </div>
               <div className="border border-border/80 py-5 px-2 flex flex-col items-center justify-center text-center space-y-2 bg-background/50 rounded-xl">
-                <RotateCcw className="text-yellow-600" size={20} />
+                <Ban className="text-rose-600" size={20} />
                 <span className="text-[8px] font-extrabold uppercase tracking-widest text-foreground leading-tight">
-                  30 Day<br />Returns
+                  No<br />Returns
                 </span>
               </div>
               <div className="border border-border/80 py-5 px-2 flex flex-col items-center justify-center text-center space-y-2 bg-background/50 rounded-xl">
@@ -299,7 +351,7 @@ export default function ProductDetails() {
                 )}
                 {activeTab === 'shipping' && (
                   <p className="animate-fadeIn">
-                    Free shipping across India. Dispatched in 2-3 business days. Shipped in secure, protective packaging. Note: No Cash on Delivery (COD).
+                    Free shipping across India. Dispatched in 2-3 business days. Shipped in secure, protective packaging. Note: No Cash on Delivery (COD) & No Returns.
                   </p>
                 )}
               </div>

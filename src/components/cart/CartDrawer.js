@@ -20,7 +20,9 @@ export default function CartDrawer() {
     }
 
     setIsCartOpen(false); // Close Cart drawer
-    router.push('/checkout');
+    React.startTransition(() => {
+      router.push('/checkout');
+    });
   };
 
   if (!isCartOpen) return null;
@@ -63,36 +65,41 @@ export default function CartDrawer() {
             </div>
           ) : (
             <div className="space-y-10">
-              {cart.map(item => (
-                <div key={item.id + item.variant} className="flex gap-6 group">
-                  <Link 
-                    href={`/product/${item.id}`}
-                    onClick={() => setIsCartOpen(false)}
-                    className="w-24 h-32 rounded-none overflow-hidden bg-secondary border border-border flex-shrink-0 block"
-                  >
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  </Link>
-                  <div className="flex-1 flex flex-col justify-between py-1">
+              {cart.map(item => {
+                const itemColor = item.variantDetails?.color;
+                const colorObj = item.variants?.colors?.find(c => c.name === itemColor);
+                const displayImage = colorObj?.image || item.image;
+                return (
+                  <div key={item.id + item.variant} className="flex gap-6 group">
                     <Link 
-                      href={`/product/${item.id}`}
+                      href={`/product/${item.id}${itemColor ? `?color=${encodeURIComponent(itemColor)}` : ''}`}
                       onClick={() => setIsCartOpen(false)}
-                      className="space-y-1 block hover:opacity-80 transition-opacity"
+                      className="w-24 h-32 rounded-none overflow-hidden bg-secondary border border-border flex-shrink-0 block"
                     >
-                      <div className="flex justify-between items-start gap-2">
-                        <h4 className="text-sm font-semibold text-foreground tracking-tight hover:text-accent transition-colors leading-tight">{item.name}</h4>
-                        <span className="text-sm font-medium text-muted shrink-0">₹{item.price}</span>
-                      </div>
-                      <p className="text-[11px] uppercase tracking-wider text-muted/60">{item.variantDetails.color} / {item.variantDetails.size}</p>
+                      <img src={displayImage} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     </Link>
-                    <button 
-                      className="text-[10px] uppercase font-bold tracking-[0.2em] text-foreground/40 hover:text-foreground transition-colors text-left"
-                      onClick={() => removeFromCart(item.id + item.variant)}
-                    >
-                      Remove
-                    </button>
+                    <div className="flex-1 flex flex-col justify-between py-1">
+                      <Link 
+                        href={`/product/${item.id}${itemColor ? `?color=${encodeURIComponent(itemColor)}` : ''}`}
+                        onClick={() => setIsCartOpen(false)}
+                        className="space-y-1 block hover:opacity-80 transition-opacity"
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <h4 className="text-sm font-semibold text-foreground tracking-tight hover:text-accent transition-colors leading-tight">{item.name}</h4>
+                          <span className="text-sm font-medium text-muted shrink-0">₹{item.price}</span>
+                        </div>
+                        <p className="text-[11px] uppercase tracking-wider text-muted/60">{item.variantDetails.color} / {item.variantDetails.size}</p>
+                      </Link>
+                      <button 
+                        className="text-[10px] uppercase font-bold tracking-[0.2em] text-foreground/40 hover:text-foreground transition-colors text-left"
+                        onClick={() => removeFromCart(item.id + item.variant)}
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -103,7 +110,7 @@ export default function CartDrawer() {
               <span>Subtotal</span>
               <span>₹{subtotal}</span>
             </div>
-            <p className="text-[11px] text-muted leading-relaxed font-semibold">Free Shipping India • No COD</p>
+            <p className="text-[11px] text-muted leading-relaxed font-semibold">Free Shipping India • No COD • No Returns</p>
             <button 
               onClick={handleCheckout}
               className="w-full py-5 rounded-none bg-foreground text-background font-bold text-sm tracking-widest uppercase transition-all duration-500 hover:opacity-90 flex items-center justify-center gap-3"
